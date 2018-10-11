@@ -1,0 +1,122 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce uni payment v0.01\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2014-04-22 18:12:40+0000\n"
+"Last-Translator: admin <radovanmail@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%100/10==1 ? 2 : n%10==1 ? 0 : (n+9)%10>3 ? 2 : 1;\n"
+"X-Generator: CSL v1.x\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: \n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: index.php:181
+#@ index
+msgid "Enable/Disable"
+msgstr "Zapnout/Vypnout"
+
+#: index.php:183
+#@ index
+msgid "Enable:"
+msgstr "Zapnuto"
+
+#: index.php:188
+#@ index
+msgid "Title:"
+msgstr "Titulek:"
+
+#: index.php:190
+#@ index
+msgid "This controls the title which the user sees during checkout."
+msgstr "tento titulek uvidí uživatel při platbě"
+
+#: index.php:191
+#@ index
+msgid "uni"
+msgstr "uni"
+
+#: index.php:195
+#@ index
+msgid "Description:"
+msgstr "Popis:"
+
+#: index.php:197
+#: index.php:198
+#@ index
+msgid "Platiti.cz."
+msgstr "Modul Platiti."
+
+#: index.php:202
+#@ index
+msgid "Return Page"
+msgstr "Navratova Stranka"
+
+#: index.php:205
+#@ index
+msgid "URL of success page"
+msgstr "URL úspěšné platby"
+
+#: index.php:221
+#@ index
+msgid "Platiti"
+msgstr "Platiti"
+
+#: index.php:263
+#, php-format
+#@ index
+msgid "Thank you for your order, please click the button below to pay with %s"
+msgstr "Děkujeme za objednávku, Přesměrování na platební bránu provedete kliknutím na tlačítko OBJEDNAT."
+
+#: index.php:287
+#@ index
+msgid "Place order"
+msgstr "Objednat"
+
+#: index.php:287
+#@ index
+msgid "Cancel order &amp; restore cart"
+msgstr "Zrušit a návrat do košíku"
+
+#: index.php:456
+#, php-format
+#@ index
+msgid "uni payment successful<br/>Unnique Id from uni: %s"
+msgstr "Platba proběhla úspěšně <br/> Unikátní Id %s"
+
+#: index.php:464
+#@ index
+msgid "Thank you for shopping with us. Right now your payment staus is pending, We will keep you posted regarding the status of your order through e-mail"
+msgstr "Děkujeme za Váš nákup. Status Vaší objednávky je čekající. Budeme Vás kontaktovat s informací o průběhu objednávky."
+
+#: index.php:467
+#, php-format
+#@ index
+msgid "uni payment status is pending<br/>Unnique Id from uni: %s"
+msgstr "Status pending <br/>Unikátní Id objednávky %s"
+
+#: index.php:477
+#@ index
+msgid "Thank you for shopping with us. However, the transaction has been declined."
+msgstr "Děkujeme za objednávku. Naneštěstí  se něco pokazilo a Vaše platba byla odmítnuta."
+
+#: index.php:479
+#, php-format
+#@ index
+msgid "Transaction Declined: <br/>Unnique Id from uni: %s"
+msgstr "Transkace odmítnuta <br/>Unikátní id: %s"
+
+#: index.php:485
+#@ index
+msgid "Security Error. Illegal access detected"
+msgstr "Bezpečnostní chyba - Nepovolený přístup"
+

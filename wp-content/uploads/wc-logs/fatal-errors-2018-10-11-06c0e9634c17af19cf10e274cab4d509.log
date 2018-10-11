@@ -1,0 +1,28 @@
+2018-10-11T16:29:53+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct('echo test > '/d...', NULL, NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(261): VersionPress\Utils\Process->__construct('echo test > '/d...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(110): VersionPress\Utils\RequirementsChecker->tryWrite()
+#3 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/vers
+
+2018-10-11T16:30:08+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct('echo test > '/d...', NULL, NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(261): VersionPress\Utils\Process->__construct('echo test > '/d...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(110): VersionPress\Utils\RequirementsChecker->tryWrite()
+#3 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/vers
+
+2018-10-11T16:30:23+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct('echo test > '/d...', NULL, NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(261): VersionPress\Utils\Process->__construct('echo test > '/d...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(110): VersionPress\Utils\RequirementsChecker->tryWrite()
+#3 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/vers
+
+2018-10-11T16:31:55+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct('echo test > '/d...', NULL, NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(261): VersionPress\Utils\Process->__construct('echo test > '/d...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(110): VersionPress\Utils\RequirementsChecker->tryWrite()
+#3 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/vers
+

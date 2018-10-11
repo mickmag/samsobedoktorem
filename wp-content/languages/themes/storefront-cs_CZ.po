@@ -1,0 +1,512 @@
+# Translation of Themes - Storefront in Czech
+# This file is distributed under the same license as the Themes - Storefront package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2017-02-04 13:43:52+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: GlotPress/2.3.0-alpha\n"
+"Language: cs_CZ\n"
+"Project-Id-Version: Themes - Storefront\n"
+
+#. Theme Name of the plugin/theme
+msgid "Storefront"
+msgstr "Storefront"
+
+#. Description of the plugin/theme
+msgid "Storefront is the perfect theme for your next WooCommerce project. Designed and developed by WooCommerce Core developers, it features a bespoke integration with WooCommerce itself plus many of the most popular customer facing WooCommerce extensions. There are several layout & color options to personalise your shop, multiple widget regions, a responsive design and much more. Developers will love it's lean and extensible codebase making it a joy to customise and extend. Looking for a WooCommerce theme? Look no further!"
+msgstr "Storefront je skvělá šablona, pro váš další WooCommerce projekt. Navržena a vyvinuta WooTheme, podporuje a využívá náš Woocommerce plugin, několik rozvržení stánky a nastavení barev, pro personalizaci vašeho obchodu, několik widget oblastí, responzivní design a mnohem více. Vývojáři si oblíbí jednoduchý a rozšiřitelný kód. díky němuž, bude další vývoj radostí. Hledáte WooCommerce šablonu? Již nemusíte!"
+
+#: inc/class-storefront.php:145
+msgid "Widgets added to this region will appear beneath the header and above the main content."
+msgstr "Widgety přidané do této oblasti se objeví pod hlavičkou a nad hlavním obsahem."
+
+#: inc/admin/welcome-screen/component-contribute.php:15
+msgid "Download Theme Customisations"
+msgstr "Stáhnout přizpůsobení šablony"
+
+#: inc/admin/welcome-screen/component-contribute.php:11
+msgid "We highly encourage you to make %s all yours. If you need to make a CSS tweak or add some custom JS or PHP, please use our Theme Customisations Plugin. Simply Click the button below, install as normal, and start Customizing today!"
+msgstr "Vřele doporučujeme, aby %s všechny vaše. Pokud potřebujete, aby se CSS vyladit nebo přidat nějaký vlastní JS nebo PHP, použijte naše téma customizaci Plugin. Stačí kliknout na tlačítko níže, instalovat jako normální, a začít Přizpůsobení dnes!"
+
+#: inc/admin/welcome-screen/component-contribute.php:10
+msgid "Customise Storefront"
+msgstr "Přizpůsobit Storefront"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:327
+msgid "My Account"
+msgstr "Můj účet"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:300
+msgid "Search"
+msgstr "Prohledat"
+
+#: inc/storefront-template-functions.php:738
+msgid "Best Sellers"
+msgstr "Nejlepší prodejci"
+
+#: inc/storefront-template-functions.php:662
+msgid "Fan Favorites"
+msgstr "Oblíbené "
+
+#: inc/storefront-template-functions.php:621
+msgid "We Recommend"
+msgstr "Doporučujeme"
+
+#: inc/storefront-template-functions.php:580
+msgid "New In"
+msgstr "Nové v"
+
+#: inc/storefront-template-functions.php:539
+msgid "Shop by Category"
+msgstr "Obchod podle kategorií"
+
+#: inc/storefront-template-functions.php:443
+msgid "Comments"
+msgstr "Komentáře"
+
+#: inc/storefront-template-functions.php:433
+msgid "Tagged"
+msgstr "Štítky"
+
+#: inc/storefront-template-functions.php:420
+msgid "Posted in"
+msgstr "Zařazeno v"
+
+#: inc/storefront-template-functions.php:409
+msgid "Written by"
+msgstr "Autor"
+
+#: inc/storefront-template-functions.php:231
+msgid "Menu"
+msgstr "Menu"
+
+#: inc/admin/welcome-screen/component-intro.php:66
+msgid "Stay up to date with Storefront developments on the %sdev blog%s."
+msgstr "Zůstaňte ve spojení s developery Storefront na jejich %svývojářském blogu%s."
+
+#: inc/admin/welcome-screen/component-enhance.php:39
+#: inc/admin/welcome-screen/component-enhance.php:81
+#: inc/admin/welcome-screen/component-enhance.php:111
+msgid "We're currently unable to retrieve these products. Please double check your internet connection or try back later."
+msgstr "V současné době jsme schopni získat tyto produkty. Zkontrolujte prosím své internetové připojení nebo to zkuste později."
+
+#: inc/admin/welcome-screen/component-contribute.php:32
+msgid "You can find a wide range of information on how to use and customise %s in our %sdocumentation%s. If you're a customer you can get support in our %sHelpdesk%3$s. Otherwise you can try posting on the WordPress.org %ssupport forums%3$s."
+msgstr "Naleznete širokou škálu informací o tom, jak používat a upravovat %s naší %sdokumentaci%s. Pokud jste zákazník můžete získat podporu v našem %sHelpdesk%3$s. V opačném případě můžete zkusit vysílání na WordPress.org %sfórum podpory %3$s."
+
+#: inc/admin/welcome-screen/component-contribute.php:31
+msgid "Get support"
+msgstr "Dostat podporu"
+
+#: inc/class-storefront.php:143
+msgid "Below Header"
+msgstr "Pod hlavičkou"
+
+#: inc/admin/welcome-screen/component-intro.php:58
+msgid "Customizer settings"
+msgstr "Přizpůsobit"
+
+#: inc/customizer/class-storefront-customizer-control-more.php:31
+msgid "Enjoying %s?"
+msgstr "Spokojeni s %s?"
+
+#: inc/admin/welcome-screen/component-intro.php:57
+msgid "FAQ"
+msgstr "Nejčastější dotazy"
+
+#: inc/admin/welcome-screen/component-intro.php:56
+msgid "Installation &amp; configuration"
+msgstr "Instalace &amp; konfigurace"
+
+#: inc/admin/welcome-screen/component-intro.php:54
+msgid "Featured Docs"
+msgstr "Doporučená dokumentace"
+
+#: inc/admin/welcome-screen/component-intro.php:34
+msgid "Recent News"
+msgstr "Nejnovější zprávy"
+
+#: inc/admin/welcome-screen/component-intro.php:31
+msgid "Latest %s news"
+msgstr "Nejnovější %s zprávy"
+
+#: inc/admin/welcome-screen/component-intro.php:26
+msgid "Install %s"
+msgstr "Instalovat %s"
+
+#: inc/admin/welcome-screen/component-intro.php:19
+msgid "Built to enrich your %s store"
+msgstr "Vytvořený k vylepšení %s obchodu"
+
+#: inc/admin/welcome-screen/component-intro.php:14
+msgid "%sEnjoying %s?%s Why not %sleave a review%s on WordPress.org? We'd really appreciate it!"
+msgstr "%sSpokojeni %s?%s Proč %snenapíšete recenzi%s na WordPress.org? Velmi to oceníme."
+
+#: inc/admin/welcome-screen/component-enhance.php:86
+msgid "View all %s child themes &rarr;"
+msgstr "Prohledněte si všechny %s child šablony &rarr;"
+
+#: inc/admin/welcome-screen/component-enhance.php:53
+msgid "Take a look at our range of child themes for %s that allow you to easily change the look of your store to suit a specific industry."
+msgstr "Podívejte se na nabídku child šablon pro %s, které umožňuji jednoduše změnit vzhled vašeho eshopu."
+
+#: inc/admin/welcome-screen/component-enhance.php:52
+msgid "Child themes"
+msgstr "Odvozená šablona"
+
+#: inc/admin/welcome-screen/component-enhance.php:94
+msgid "There are a number of free plugins available for %s on the WordPress.org %splugin repository%s. Here's a few we made earlier:"
+msgstr "K dispozici je několik pluginů, pro %s ve WordPress.org %splugin repozitáři%s. Několik z nich je zde:"
+
+#: inc/admin/welcome-screen/component-enhance.php:46
+msgid "View all %s extensions &rarr;"
+msgstr "Zobrazit všechna %s rozšíření &rarr;"
+
+#: inc/admin/welcome-screen/component-enhance.php:22
+msgid "Take a look at our range of extensions that extend and enhance %s functionality."
+msgstr "Podívejte se na naši nabídku rozšíření, které rozšiřují %s funkce. "
+
+#: inc/admin/welcome-screen/component-enhance.php:20
+msgid "Enhance %s"
+msgstr "Vylepšit %s "
+
+#: inc/admin/welcome-screen/component-contribute.php:38
+msgid "An %s project"
+msgstr "%s projekt"
+
+#: inc/admin/welcome-screen/component-contribute.php:27
+msgid "Please suggest and vote on ideas at the %s%s Ideas board%s. The most popular ideas will see prioritised development."
+msgstr "Prosíme, navrhněte, nebo hlasujte pro vylepšení na %s%s nástěnce nápadů%s. Návrhy s největším počtem hlasů, budou zahrnuty do vývoje."
+
+#: inc/admin/welcome-screen/component-contribute.php:26
+msgid "Suggest a feature"
+msgstr "Navrhnout vylepšení"
+
+#: inc/admin/welcome-screen/component-contribute.php:21
+msgid "Contribute to Storefront"
+msgstr "Přispět do Storefront"
+
+#: inc/admin/welcome-screen/component-intro.php:24
+msgid "%s is activated"
+msgstr "%s je aktivovaný"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:225
+msgid "On Sale Now"
+msgstr "Aktuálně ve výprodeji"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:233
+msgid "New In Store"
+msgstr "Nově v obchodě"
+
+#: inc/admin/welcome-screen/component-enhance.php:62
+#: inc/admin/welcome-screen/component-enhance.php:106
+msgid "Free!"
+msgstr "Zdarma!"
+
+#: inc/admin/welcome-screen/component-enhance.php:92
+msgid "Install free plugins"
+msgstr "Instalovat pluginy zdarma"
+
+#: inc/customizer/class-storefront-customizer.php:234
+msgid "Header background image"
+msgstr "Obrázek v pozadí záhlaví"
+
+#: inc/storefront-template-functions.php:461
+msgctxt "Next post"
+msgid "Next"
+msgstr "Následující"
+
+#: inc/storefront-template-functions.php:462
+msgctxt "Previous post"
+msgid "Previous"
+msgstr "Předchozí"
+
+#: 404.php:58
+msgid "Popular Products"
+msgstr "Oblíbené produkty"
+
+#: 404.php:22
+msgid "Nothing was found at this location. Try searching, or check out the links below."
+msgstr "Bohužel jsme nic nenašli. Zkuste vyhledávání, nebo odkazy níže."
+
+#. Template Name of the plugin/theme
+msgid "Homepage"
+msgstr "Domovská stránka"
+
+#. Template Name of the plugin/theme
+msgid "Full width"
+msgstr "Plná délka"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:75
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d Položka"
+msgstr[1] "%d Položky"
+msgstr[2] ""
+
+#: search.php:16
+msgid "Search Results for: %s"
+msgstr "Výsledky vyhledávání pro: %s"
+
+#: 404.php:47
+msgid "Product Categories"
+msgstr "Kategorie produktů"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:217
+msgid "Featured Products"
+msgstr "TOP produkty"
+
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:74
+#: inc/woocommerce/storefront-woocommerce-template-functions.php:313
+msgid "View your shopping cart"
+msgstr "Zobrazit košík"
+
+#: inc/storefront-template-functions.php:701
+msgid "On Sale"
+msgstr "Ve slevě"
+
+#: inc/storefront-template-functions.php:500
+msgctxt "post date"
+msgid "Posted on %s"
+msgstr "Publikováno %s"
+
+#: inc/storefront-template-functions.php:444
+msgid "% Comments"
+msgstr "Komentáře: %"
+
+#: inc/storefront-template-functions.php:444
+msgid "1 Comment"
+msgstr "1 komentář"
+
+#: inc/storefront-template-functions.php:444
+msgid "Leave a comment"
+msgstr "Napsat komentář"
+
+#. translators: used between list items, there is a space after the comma
+#: inc/storefront-template-functions.php:415
+#: inc/storefront-template-functions.php:428
+msgid ", "
+msgstr ", "
+
+#: inc/storefront-template-functions.php:377
+msgid "Continue reading %s"
+msgstr "Pokračování textu %s"
+
+#: inc/storefront-template-functions.php:322
+#: inc/storefront-template-functions.php:385
+msgid "Pages:"
+msgstr "Stránky:"
+
+#: inc/storefront-template-functions.php:286
+msgid "Skip to navigation"
+msgstr "Přeskočit na navigaci"
+
+#: inc/storefront-template-functions.php:262
+msgid "Secondary Navigation"
+msgstr "Vedlejší navigace"
+
+#: inc/storefront-template-functions.php:287
+msgid "Skip to content"
+msgstr "Přejít k obsahu webu"
+
+#: inc/storefront-template-functions.php:128
+msgid "%1$s designed by %2$s."
+msgstr "%1$s vytvořeno %2$s."
+
+#: inc/storefront-template-functions.php:230
+msgid "Primary Navigation"
+msgstr "Základní navigační menu"
+
+#: inc/storefront-template-functions.php:64
+msgid "Edit"
+msgstr "Upravit"
+
+#: inc/class-storefront.php:154
+msgid "Footer %d"
+msgstr "Zápatí %d"
+
+#: inc/class-storefront.php:156
+msgid "Widgetized Footer Region %d."
+msgstr "Oblast pro widgety v patičce %d."
+
+#: inc/storefront-template-functions.php:48
+msgid "Your comment is awaiting moderation."
+msgstr "Komentář čeká na schválení."
+
+#: inc/class-storefront.php:88
+msgid "Handheld Menu"
+msgstr "Mobilní menu"
+
+#: inc/class-storefront.php:137
+msgid "Sidebar"
+msgstr "Postranní panel"
+
+#: inc/class-storefront.php:87
+msgid "Secondary Menu"
+msgstr "Duhé ménu"
+
+#: inc/customizer/class-storefront-customizer.php:460
+msgid "Looking for more options?"
+msgstr "Hledáte více možností?"
+
+#: inc/class-storefront.php:86
+msgid "Primary Menu"
+msgstr "Základní navigační menu"
+
+#: inc/customizer/class-storefront-customizer.php:437
+msgid "General Layout"
+msgstr "Základní rozvržení"
+
+#: inc/customizer/class-storefront-customizer.php:450
+msgid "More"
+msgstr "Další"
+
+#: inc/customizer/class-storefront-customizer.php:289
+msgid "Customise the look & feel of your web site footer."
+msgstr "Úprava vzhledu a působení zápatí vaší webové stránky."
+
+#: inc/customizer/class-storefront-customizer.php:358
+msgid "Customise the look & feel of your web site buttons."
+msgstr "Úprava vzhledu a působení tlačítek vaší webové stránky."
+
+#: inc/customizer/class-storefront-customizer.php:356
+msgid "Buttons"
+msgstr "Tlačítka"
+
+#: inc/customizer/class-storefront-customizer.php:415
+msgid "Alternate button text color"
+msgstr "Alternativní barva textu tlačítka"
+
+#: inc/customizer/class-storefront-customizer.php:400
+msgid "Alternate button background color"
+msgstr "Alternativní barva pozadí tlačítka"
+
+#: inc/customizer/class-storefront-customizer.php:425
+msgid "Layout"
+msgstr "Grafické rozvržení"
+
+#: inc/customizer/class-storefront-customizer.php:287
+msgid "Footer"
+msgstr "Zápatí"
+
+#: inc/customizer/class-storefront-customizer.php:277
+#: inc/customizer/class-storefront-customizer.php:346
+msgid "Link color"
+msgstr "Barva odkazů"
+
+#: inc/customizer/class-storefront-customizer.php:247
+#: inc/customizer/class-storefront-customizer.php:301
+#: inc/customizer/class-storefront-customizer.php:370
+msgid "Background color"
+msgstr "Barva pozadí"
+
+#: inc/customizer/class-storefront-customizer.php:195
+#: inc/customizer/class-storefront-customizer.php:316
+msgid "Heading color"
+msgstr "Barva nadpisů"
+
+#: inc/customizer/class-storefront-customizer.php:225
+msgid "Link / accent color"
+msgstr "Barva odkazu/ zvýraznění"
+
+#: inc/customizer/class-storefront-customizer.php:210
+#: inc/customizer/class-storefront-customizer.php:262
+#: inc/customizer/class-storefront-customizer.php:331
+#: inc/customizer/class-storefront-customizer.php:385
+msgid "Text color"
+msgstr "Barva textu"
+
+#: inc/customizer/class-storefront-customizer.php:182
+msgid "Typography"
+msgstr "Typografie"
+
+#: inc/customizer/class-storefront-customizer.php:144
+msgid "Header"
+msgstr "Záhlaví"
+
+#: inc/admin/welcome-screen/component-contribute.php:22
+msgid "Found a bug? Want to contribute a patch or create a new feature? %sGitHub is the place to go!%s Or would you like to translate %s into your language? %sGet involved on WordPress.org%s."
+msgstr "Nalezli jste chybu? Chcete přispět do kódu, nebo přidat nové vylepšní? %sGitHub je to správné místo!%s Nebo chcete přeložit %s do vašeho jazyka? %sPřidejte se na WordPress.org%s."
+
+#: inc/admin/class-storefront-admin.php:57
+msgid "Get started with Storefront"
+msgstr "Začněte se Storefront"
+
+#: inc/admin/class-storefront-admin.php:56
+msgid "Thanks for choosing Storefront! You can read hints and tips on how get the most out of your new theme on the %swelcome screen%s."
+msgstr "Děkujeme, že jste si vybrali Storefront. Můžete si přečíst nápady a tipy, jak využít vaši novou šablonu na %suvítací stránce%s."
+
+#: inc/customizer/class-storefront-customizer-control-more.php:28
+msgid "There's a range of %s extensions available to put additional power in your hands. Check out the %s%s%s page in your dashboard for more information."
+msgstr "K dispozici je řada %s rozšíření, které vám dají další možnosti. Podívejte se na %s%s%s stránku na vaší nástěnce, pro více informací."
+
+#: inc/customizer/class-storefront-customizer-control-more.php:34
+msgid "Why not leave us a review on %sWordPress.org%s?  We'd really appreciate it!"
+msgstr "Proč nenapíšete recenzi na %sWordPress.org%s? Velmi to oceníme!"
+
+#: inc/customizer/class-storefront-customizer.php:140
+msgid "Background"
+msgstr "Pozadí"
+
+#: inc/admin/welcome-screen/component-intro.php:21
+msgid "Although %s works fine as a regular WordPress theme, it really shines when used for an online store. Install %s and start selling now."
+msgstr "Ačkoli%s funguje jako normální WordPress šablona, ideální je, při použití pro eshop. Nainstalujte %s a začnete prodávat."
+
+#: content-none.php:29
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "Patrně jste chtěli na webu zobrazit něco, co se zde bohužel nenachází. Můžete ale ještě zkusit vyhledávání pomocí zadaného klíčového slova."
+
+#: content-none.php:24
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "Omlouváme se, ale hledaný výraz nebyl na webu nalezen. Zkuste to prosím znovu s nějakým jiným klíčovým slovem."
+
+#: content-none.php:20
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Chystáte se publikovat svůj první příspěvek? <a href=\"%1$s\">Můžete začít rovnou zde</a>."
+
+#: content-none.php:14
+msgid "Nothing Found"
+msgstr "Nenalezeno"
+
+#: comments.php:64
+msgid "Comments are closed."
+msgstr "Komentáře nejsou povoleny."
+
+#: comments.php:39 comments.php:57
+msgid "Newer Comments &rarr;"
+msgstr "Novější komentáře &rarr;"
+
+#: comments.php:38 comments.php:56
+msgid "&larr; Older Comments"
+msgstr "&larr; Starší komentáře"
+
+#: comments.php:37 comments.php:55
+msgid "Comment navigation"
+msgstr "Navigace pro komentáře"
+
+#: comments.php:28
+msgctxt "comments title"
+msgid "One thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] "1 komentář u &bdquo;%2$s&ldquo;"
+msgstr[1] "%1$s komentáře u &bdquo;%2$s&ldquo;"
+msgstr[2] "%1$s komentářů u &bdquo;%2$s&ldquo;"
+
+#: 404.php:19
+msgid "Oops! That page can&rsquo;t be found."
+msgstr "Omlouváme se, ale stránka nebyla nalezena."
+
+#. Author URI of the plugin/theme
+msgid "https://woocommerce.com/"
+msgstr "https://woocommerce.com/"
+
+#. Theme URI of the plugin/theme
+msgid "https://woocommerce.com/storefront"
+msgstr "https://woocommerce.com/storefront"
+
+#. Author of the plugin/theme
+msgid "WooThemes"
+msgstr "WooThemes"
