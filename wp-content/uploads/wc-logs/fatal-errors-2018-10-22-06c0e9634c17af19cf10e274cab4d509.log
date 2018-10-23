@@ -1,0 +1,14 @@
+2018-10-22T22:16:58+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct('echo test > '/d...', NULL, NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(261): VersionPress\Utils\Process->__construct('echo test > '/d...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/RequirementsChecker.php(110): VersionPress\Utils\RequirementsChecker->tryWrite()
+#3 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/vers
+
+2018-10-22T22:17:49+00:00 CRITICAL Uncaught Symfony\Component\Process\Exception\RuntimeException: The Process class relies on proc_open, which is not available on your PHP installation. in /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/vendor/symfony/process/Process.php:151
+Stack trace:
+#0 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Utils/Process.php(23): Symfony\Component\Process\Process->__construct(''git' rev-list ...', '/data/web/virtu...', NULL, NULL, 3600, Array)
+#1 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Git/GitRepository.php(523): VersionPress\Utils\Process->__construct(''git' rev-list ...', '/data/web/virtu...')
+#2 /data/web/virtuals/195975/virtual/www/domains/sam-sobe-doktorem.cz/wp-content/plugins/versionpress/src/Git/GitRepository.php(501): VersionPress\Git\GitRepository->runProcess(''git' rev-list ...')
+#3 [internal function]: VersionPress\Git\GitRepository->r
+
