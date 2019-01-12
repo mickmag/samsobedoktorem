@@ -140,3 +140,133 @@
 *** Thu, 04 Oct 2018 09:46:23 +0000 getPaymentMethods reply: TpDataApiGetPaymentMethodsResponse Object|(|    [accountId:protected] => 1|    [methods:protected] => Array|        (|            [0] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 21|                    [name:protected] => Platba kartou|                    [active:protected] => 1|                )||            [1] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 23|                    [name:protected] => Platba24|                    [active:protected] => 1|                )||            [2] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 11|                    [name:protected] => MojePlatba|                    [active:protected] => 1|                )||            [3] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 1|                    [name:protected] => eKonto|                    [active:protected] => 1|                )||            [4] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 12|                    [name:protected] => mPeníze|                    [active:protected] => 1|                )||            [5] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 13|                    [name:protected] => MONETA|                    [active:protected] => 1|                )||            [6] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 19|                    [name:protected] => ČSOB|                    [active:protected] => 1|                )||            [7] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 17|                    [name:protected] => Fio banka|                    [active:protected] => 1|                )||            [8] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 22|                    [name:protected] => Equa Bank|                    [active:protected] => 1|                )||            [9] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 26|                    [name:protected] => Sberbank|                    [active:protected] => 1|                )||            [10] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 18|                    [name:protected] => Jiná banka|                    [active:protected] => 1|                )||            [11] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 5|                    [name:protected] => SuperCash|                    [active:protected] => 1|                )||            [12] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 29|                    [name:protected] => Bitcoin|                    [active:protected] => 1|                )||        )||    [merchantId:protected] => 1|)|
 *** Thu, 04 Oct 2018 09:46:23 +0000 NEW_ORDER
 *** Thu, 04 Oct 2018 09:46:23 +0000 MAKING_ORDER_URL https://www.thepay.cz/demo-gate/?merchantId=1&accountId=1&value=450.00&currency=CZK&description=S%26aacute%3Bm%20sob%C4%9B%20doktorem&merchantData=pair-397&customerEmail=michal.bokr%40gmail.com&returnUrl=http%3A%2F%2Fsam-sobe-doktorem.cz%2Fwp-content%2Fplugins%2FWooCommerceAdapter%2FReply.php%3Funimodul%3DThePay&backToEshopUrl=http%3A%2F%2Fsam-sobe-doktorem.cz%2Fwp-content%2Fplugins%2FWooCommerceAdapter%2FReply.php%3Funimodul%3DThePay%26backToEshop%3D1&methodId=12&merchantSpecificSymbol=397&signature=287a87df6f12fbe087c60a64e315552f   109.81.215.165 /pokladna/order-pay/397/?key=wc_order_5bb5e16eed91b&ThePay=thepaybindermpenize
+*** Sat, 12 Jan 2019 18:50:08 +0000 getPaymentMethods call: only active, config: TpMerchantConfig Object|(|    [gateUrl] => https://www.thepay.cz/demo-gate/|    [merchantId] => 1|    [accountId] => 1|    [password] => my$up3rsecr3tp4$$word|    [dataApiPassword] => my$up3rsecr3tp4$$word|    [webServicesWsdl] => https://www.thepay.cz/demo-gate/api/api-demo.wsdl|    [dataWebServicesWsdl] => https://www.thepay.cz/demo-gate/api/data-demo.wsdl|)|
+*** Sat, 12 Jan 2019 18:50:09 +0000 getPaymentMethods reply: TpDataApiGetPaymentMethodsResponse Object|(|    [accountId:protected] => 1|    [methods:protected] => Array|        (|            [0] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 21|                    [name:protected] => Platba kartou|                    [active:protected] => 1|                )||            [1] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 23|                    [name:protected] => Platba24|                    [active:protected] => 1|                )||            [2] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 11|                    [name:protected] => MojePlatba|                    [active:protected] => 1|                )||            [3] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 1|                    [name:protected] => eKonto|                    [active:protected] => 1|                )||            [4] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 12|                    [name:protected] => mPeníze|                    [active:protected] => 1|                )||            [5] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 13|                    [name:protected] => MONETA|                    [active:protected] => 1|                )||            [6] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 19|                    [name:protected] => ČSOB|                    [active:protected] => 1|                )||            [7] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 17|                    [name:protected] => Fio banka|                    [active:protected] => 1|                )||            [8] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 22|                    [name:protected] => Equa Bank|                    [active:protected] => 1|                )||            [9] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 26|                    [name:protected] => Sberbank|                    [active:protected] => 1|                )||            [10] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 18|                    [name:protected] => Jiná banka|                    [active:protected] => 1|                )||            [11] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 5|                    [name:protected] => SuperCash|                    [active:protected] => 1|                )||            [12] => TpDataApiMerchantAccountMethod Object|                (|                    [id:protected] => 29|                    [name:protected] => Bitcoin|                    [active:protected] => 1|                )||        )||    [merchantId:protected] => 1|)|
+*** Sat, 12 Jan 2019 18:50:09 +0000 NEW_ORDER
+*** Sat, 12 Jan 2019 18:50:09 +0000 CANNOT SEND ORDER OrderToPayInfo Object
+(
+    [shopOrderNumber] => 1605
+    [shopPairingInfo] => pair-1605
+    [uniAdapterData] => 
+    [amount] => 229.00
+    [currency] => CZK
+    [ccBrand] => 
+    [customerData] => CustomerData Object
+        (
+            [email] => michal.bokr@gmail.com
+            [first_name] => Michal
+            [last_name] => Bokr
+            [street] => Borice 57
+            [houseNumber] => 
+            [city] => Domazlice
+            [post_code] => 34401
+            [state] => 
+            [country] => CZ
+            [phone] => 608633413
+            [identifier] => 1
+        )
+
+    [language] => cs
+    [description] => S&aacute;m sobě doktorem
+    [replyUrl] => http://sam-sobe-doktorem.cz/wp-content/plugins/WooCommerceAdapter/Reply.php?unimodul=ThePay
+    [notifyUrl] => http://sam-sobe-doktorem.cz/wp-content/plugins/WooCommerceAdapter/Notify.php?unimodul=ThePay
+    [uniModulDirUrl] => http://sam-sobe-doktorem.cz/UniModul/
+    [currencyRates] => Array
+        (
+        )
+
+    [subMethod] => 
+    [adapterProperties] => 
+    [recurrenceType] => 
+    [recurrenceParentShopOrderNumber] => 
+    [recurrenceDateTo] => 
+    [cartItems] => Array
+        (
+            [0] => UniCartItem Object
+                (
+                    [name] => ACIDOTIKUM
+                    [unitPrice] => 129
+                    [quantity] => 1
+                    [taxRate] => 0
+                    [unitTaxAmount] => 
+                    [type] => 
+                )
+
+            [1] => UniCartItem Object
+                (
+                    [name] => Paušální sazba
+                    [unitPrice] => 100
+                    [quantity] => 1
+                    [taxRate] => 0
+                    [unitTaxAmount] => 
+                    [type] => 
+                )
+
+        )
+
+)
+   resultText:ThePay nema obecnou metodu
+*** Sat, 12 Jan 2019 18:50:20 +0000 NEW_ORDER
+*** Sat, 12 Jan 2019 18:50:20 +0000 CANNOT SEND ORDER OrderToPayInfo Object
+(
+    [shopOrderNumber] => 1605
+    [shopPairingInfo] => pair-1605
+    [uniAdapterData] => 
+    [amount] => 229.00
+    [currency] => CZK
+    [ccBrand] => 
+    [customerData] => CustomerData Object
+        (
+            [email] => michal.bokr@gmail.com
+            [first_name] => Michal
+            [last_name] => Bokr
+            [street] => Borice 57
+            [houseNumber] => 
+            [city] => Domazlice
+            [post_code] => 34401
+            [state] => 
+            [country] => CZ
+            [phone] => 608633413
+            [identifier] => 1
+        )
+
+    [language] => cs
+    [description] => S&aacute;m sobě doktorem
+    [replyUrl] => http://sam-sobe-doktorem.cz/wp-content/plugins/WooCommerceAdapter/Reply.php?unimodul=ThePay
+    [notifyUrl] => http://sam-sobe-doktorem.cz/wp-content/plugins/WooCommerceAdapter/Notify.php?unimodul=ThePay
+    [uniModulDirUrl] => http://sam-sobe-doktorem.cz/UniModul/
+    [currencyRates] => Array
+        (
+        )
+
+    [subMethod] => 
+    [adapterProperties] => 
+    [recurrenceType] => 
+    [recurrenceParentShopOrderNumber] => 
+    [recurrenceDateTo] => 
+    [cartItems] => Array
+        (
+            [0] => UniCartItem Object
+                (
+                    [name] => ACIDOTIKUM
+                    [unitPrice] => 129
+                    [quantity] => 1
+                    [taxRate] => 0
+                    [unitTaxAmount] => 
+                    [type] => 
+                )
+
+            [1] => UniCartItem Object
+                (
+                    [name] => Paušální sazba
+                    [unitPrice] => 100
+                    [quantity] => 1
+                    [taxRate] => 0
+                    [unitTaxAmount] => 
+                    [type] => 
+                )
+
+        )
+
+)
+   resultText:ThePay nema obecnou metodu

@@ -1,0 +1,10 @@
+2019-01-12T18:40:56+00:00 INFO Queuing 3.5.0 - wc_update_350_reviews_comment_type
+2019-01-12T18:40:56+00:00 INFO Queuing 3.5.0 - wc_update_350_db_version
+2019-01-12T18:40:56+00:00 INFO Queuing 3.5.2 - wc_update_352_drop_download_log_fk
+2019-01-12T18:40:57+00:00 INFO Running wc_update_350_reviews_comment_type callback
+2019-01-12T18:40:57+00:00 INFO Finished running wc_update_350_reviews_comment_type callback
+2019-01-12T18:40:57+00:00 INFO Running wc_update_350_db_version callback
+2019-01-12T18:40:57+00:00 INFO Finished running wc_update_350_db_version callback
+2019-01-12T18:40:57+00:00 INFO Running wc_update_352_drop_download_log_fk callback
+2019-01-12T18:40:57+00:00 INFO Finished running wc_update_352_drop_download_log_fk callback
+2019-01-12T18:40:57+00:00 INFO Data update complete
