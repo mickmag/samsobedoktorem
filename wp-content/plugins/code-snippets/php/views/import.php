@@ -13,12 +13,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $max_size_bytes = apply_filters( 'import_upload_size_limit', wp_max_upload_size() );
-$upload_dir = wp_upload_dir();
-
 
 ?>
 <div class="wrap">
-	<h1><?php _e( 'Import Snippets', 'code-snippets' ); ?></h1>
+	<h1><?php _e( 'Import Snippets', 'code-snippets' );
+
+		$admin = code_snippets()->admin;
+
+		if ( $admin->is_compact_menu() ) {
+
+			printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+				esc_html_x( 'Manage', 'snippets', 'code-snippets' ),
+				code_snippets()->get_menu_url()
+			);
+
+			printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+				esc_html_x( 'Add New', 'snippet', 'code-snippets' ),
+				code_snippets()->get_menu_url( 'add' )
+			);
+
+			if ( isset( $admin->menus['settings'] ) ) {
+				printf( '<a href="%2$s" class="page-title-action">%1$s</a>',
+					esc_html_x( 'Settings', 'snippets', 'code-snippets' ),
+					code_snippets()->get_menu_url( 'settings' )
+				);
+			}
+		}
+
+	?></h1>
 
 	<div class="narrow">
 
@@ -26,20 +48,11 @@ $upload_dir = wp_upload_dir();
 
 		<p><?php
 			printf(
+				/* translators: %s: link to snippets admin menu */
 				__( 'Afterwards, you will need to visit the <a href="%s">All Snippets</a> page to activate the imported snippets.', 'code-snippets' ),
 				code_snippets()->get_menu_url( 'manage' )
 			); ?></p>
 
-		<?php if ( ! empty( $upload_dir['error'] ) ) : ?>
-
-			<div class="error">
-				<p><?php _e( 'Before you can upload your import file, you will need to fix the following error:' ); ?></p>
-				<p>
-					<strong><?php echo $upload_dir['error']; ?></strong>
-				</p>
-			</div>
-
-		<?php else : ?>
 
 		<form enctype="multipart/form-data" id="import-upload-form" method="post" class="wp-upload-form" name="code_snippets_import">
 
@@ -81,7 +94,11 @@ $upload_dir = wp_upload_dir();
 			<fieldset>
 				<p>
 					<label for="upload"><?php esc_html_e( 'Choose files from your computer:', 'code-snippets' ); ?></label>
-					<?php printf( esc_html__( '(Maximum size: %s)', 'code-snippets' ), size_format( $max_size_bytes ) ); ?>
+					<?php printf(
+						/* translators: %s: size in bytes */
+						esc_html__( '(Maximum size: %s)', 'code-snippets' ),
+						size_format( $max_size_bytes )
+					); ?>
 					<input type="file" id="upload" name="code_snippets_import_files[]" size="25" accept="application/json,.json,text/xml" multiple="multiple">
 					<input type="hidden" name="action" value="save">
 					<input type="hidden" name="max_file_size" value="<?php echo esc_attr( $max_size_bytes ); ?>">
@@ -93,6 +110,5 @@ $upload_dir = wp_upload_dir();
 			submit_button( __( 'Upload files and import', 'code-snippets' ) );
 			?>
 		</form>
-		<?php endif; ?>
 	</div>
 </div>

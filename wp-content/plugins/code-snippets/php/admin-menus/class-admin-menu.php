@@ -9,7 +9,8 @@ class Code_Snippets_Admin_Menu {
 
 	/**
 	 * Constructor
-	 * @param string $name  The snippet page shortname
+	 *
+	 * @param string $name The snippet page shortname
 	 * @param string $label The label shown in the admin menu
 	 * @param string $title The text used for the page title
 	 */
@@ -23,14 +24,17 @@ class Code_Snippets_Admin_Menu {
 	 * Register action and filter hooks
 	 */
 	public function run() {
-		add_action( 'admin_menu', array( $this, 'register' ) );
-		add_action( 'network_admin_menu', array( $this, 'register' ) );
+		if ( ! code_snippets()->admin->is_compact_menu() ) {
+			add_action( 'admin_menu', array( $this, 'register' ) );
+			add_action( 'network_admin_menu', array( $this, 'register' ) );
+		}
 	}
 
 	/**
 	 * Add a sub-menu to the Snippets menu
 	 * @uses add_submenu_page() to register a submenu
-	 * @param string $slug  The slug of the menu
+	 *
+	 * @param string $slug The slug of the menu
 	 * @param string $label The label shown in the admin menu
 	 * @param string $title The page title
 	 */
@@ -104,6 +108,15 @@ class Code_Snippets_Admin_Menu {
 		}
 
 		/* Create the snippet tables if they don't exist */
-		code_snippets()->db->create_tables();
+		$db = code_snippets()->db;
+		$db->create_missing_table( $db->ms_table );
+		$db->create_missing_table( $db->table );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
+
+	/**
+	 * Enqueue scripts and stylesheets for the admin page, if necessary
+	 */
+	public function enqueue_assets() {}
 }

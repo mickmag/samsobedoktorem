@@ -1,9 +1,9 @@
 === WP Google Maps ===
 Contributors: WPGMaps, NickDuncan, CodeCabin_, DylanAuty, PerryRylance
-Donate link: http://www.wpgmaps.com
+Donate link: https://www.wpgmaps.com
 Tags: google maps, maps, map, map markers, google map, google maps plugin, wp google maps, wp google map, map plugin, directions, google map plugin, map widget
 Requires at least: 3.5
-Tested up to: 4.9.8
+Tested up to: 5.0
 Requires PHP: 5.3
 Stable tag: trunk
 License: GPLv2
@@ -16,7 +16,7 @@ The easiest to use Google maps plugin! Add a customized Google map to your WordP
 
 While the free version of WP Google Maps allows you to create a Google map with as many markers as you like, the Pro version allows you to do so much more! 
 
-The [WP Google Maps Pro Version](http://www.wpgmaps.com/purchase-professional-version/) version allows you create custom Google maps with high quality markers containing locations, descriptions, images, categories, links and directions. 
+The [WP Google Maps Pro Version](https://www.wpgmaps.com/purchase-professional-version/) version allows you create custom Google maps with high quality markers containing locations, descriptions, images, categories, links and directions. 
 
 = Lite Version (Free) =
 * The most popular Google Maps plugin on WordPress
@@ -27,6 +27,7 @@ The [WP Google Maps Pro Version](http://www.wpgmaps.com/purchase-professional-ve
 * 9 popular map themes to choose from
 * Create or add your own map theme
 * Drag map markers to an exact location
+* Add a map block to your page
 * Google Maps Streetview supported
 * UTF-8 character support
 * Map widget functionality
@@ -74,7 +75,7 @@ The [WP Google Maps Pro Version](http://www.wpgmaps.com/purchase-professional-ve
 * Multiple map widget functionality
 * Add retina-ready map marker icons
 * WordPress Network friendly
-* Get the [WP Google Maps Professional Edition](http://www.wpgmaps.com/purchase-professional-version/) for only $39.99
+* Get the [WP Google Maps Professional Edition](https://www.wpgmaps.com/purchase-professional-version/) for only $39.99
 
 
 = Translations =
@@ -109,39 +110,39 @@ Get a free copy of the WP Google Maps Pro version in exchange for translating ou
 = Demos =
 WP Google Maps Lite
 
-* [Basic Google Map with Markers](http://www.wpgmaps.com/demo/basic-google-map-with-markers/)
-* [Store Locator](http://www.wpgmaps.com/demo/wp-google-maps-store-locator-free-version/)
-* [Polygons & Polyines/Routes](http://www.wpgmaps.com/demo/polygons-and-polylines/)
-* [Google Maps Transit Layer](http://www.wpgmaps.com/demo/google-maps-transit-layer/)
-* [Google Maps Traffic Layer](http://www.wpgmaps.com/demo/google-maps-traffic-layer/)
-* [Google Maps Bicycle Layer](http://www.wpgmaps.com/demo/google-maps-bicycle-layer/)
+* [Basic Google Map with Markers](https://www.wpgmaps.com/demo/basic-google-map-with-markers/)
+* [Store Locator](https://www.wpgmaps.com/demo/wp-google-maps-store-locator-free-version/)
+* [Polygons & Polyines/Routes](https://www.wpgmaps.com/demo/polygons-and-polylines/)
+* [Google Maps Transit Layer](https://www.wpgmaps.com/demo/google-maps-transit-layer/)
+* [Google Maps Traffic Layer](https://www.wpgmaps.com/demo/google-maps-traffic-layer/)
+* [Google Maps Bicycle Layer](https://www.wpgmaps.com/demo/google-maps-bicycle-layer/)
 
 WP Google Maps Pro
 
-* [Google map with advanced markers](http://www.wpgmaps.com/demo/basic-map-and-markers/)
-* [Marker listings - Simple](http://www.wpgmaps.com/demo/list-markers/)
-* [Marker listings - Advanced](http://www.wpgmaps.com/demo/map-with-markers-listed-below-advanced/)
-* [Google Maps Directions](http://www.wpgmaps.com/demo/directions/)
-* [Resposive Map](http://www.wpgmaps.com/demo/responsive-maps/)
-* [Marker Categories](http://www.wpgmaps.com/demo/marker-categories/) (Filtering)
-* [Advanced Store Locator](http://www.wpgmaps.com/demo/store-locator/)
-* [WP Google Maps Editor](http://www.wpgmaps.com/demo/screenshots-back-end/) (Back-end Screenshots)
-* [Visitor Generated Markers](http://www.wpgmaps.com/demo/visitor-generated-markers/) - (WP Google Maps VGM Add-on)
-* [Custom Map Styling](http://www.wpgmaps.com/demo/custom-map-styling/) (WP Google Maps Gold Add-on)
+* [Google map with advanced markers](https://www.wpgmaps.com/demo/basic-map-and-markers/)
+* [Marker listings - Simple](https://www.wpgmaps.com/demo/list-markers/)
+* [Marker listings - Advanced](https://www.wpgmaps.com/demo/map-with-markers-listed-below-advanced/)
+* [Google Maps Directions](https://www.wpgmaps.com/demo/directions/)
+* [Resposive Map](https://www.wpgmaps.com/demo/responsive-maps/)
+* [Marker Categories](https://www.wpgmaps.com/demo/marker-categories/) (Filtering)
+* [Advanced Store Locator](https://www.wpgmaps.com/demo/store-locator/)
+* [WP Google Maps Editor](https://www.wpgmaps.com/demo/screenshots-back-end/) (Back-end Screenshots)
+* [Visitor Generated Markers](https://www.wpgmaps.com/demo/visitor-generated-markers/) - (WP Google Maps VGM Add-on)
+* [Custom Map Styling](https://www.wpgmaps.com/demo/custom-map-styling/) (WP Google Maps Gold Add-on)
 
 = Documentation =
-* [Installing WP Google Maps](http://www.wpgmaps.com/documentation/installing-the-plugin/)
-* [Creating your first map](http://www.wpgmaps.com/documentation/creating-your-first-map/)
-* [Google Maps mashup (Pro)](http://www.wpgmaps.com/documentation/advanced-map-options/map-mashup/)
-* [Exporting and importing map markers (Pro)](http://www.wpgmaps.com/documentation/exporting-and-importing-your-markers/)
-* [Changing the Google Maps language](http://www.wpgmaps.com/documentation/changing-the-google-maps-language/)
-* [Create a google map and marker using custom fields (Pro)](http://www.wpgmaps.com/introducing-maps-by-custom-fields/)
-* [View all documentation](http://www.wpgmaps.com/documentation/)
+* [Installing WP Google Maps](https://www.wpgmaps.com/documentation/installing-the-plugin/)
+* [Creating your first map](https://www.wpgmaps.com/documentation/creating-your-first-map/)
+* [Google Maps mashup (Pro)](https://www.wpgmaps.com/documentation/advanced-map-options/map-mashup/)
+* [Exporting and importing map markers (Pro)](https://www.wpgmaps.com/documentation/exporting-and-importing-your-markers/)
+* [Changing the Google Maps language](https://www.wpgmaps.com/documentation/changing-the-google-maps-language/)
+* [Create a google map and marker using custom fields (Pro)](https://www.wpgmaps.com/introducing-maps-by-custom-fields/)
+* [View all documentation](https://www.wpgmaps.com/documentation/)
 
 = Troubleshooting =
-* [My Google Map is not showing on my website](http://www.wpgmaps.com/documentation/troubleshooting/my-map-is-not-showing-on-my-website/)
-* [My markers are not showing](http://www.wpgmaps.com/documentation/troubleshooting/my-markers-are-not-showing-on-my-map/)
-* [View all troubleshooting articles](http://www.wpgmaps.com/documentation/troubleshooting/)
+* [My Google Map is not showing on my website](https://www.wpgmaps.com/documentation/troubleshooting/my-map-is-not-showing-on-my-website/)
+* [My markers are not showing](https://www.wpgmaps.com/documentation/troubleshooting/my-markers-are-not-showing-on-my-map/)
+* [View all troubleshooting articles](https://www.wpgmaps.com/documentation/troubleshooting/)
 
 == Installation ==
 
@@ -161,7 +162,7 @@ In order to make use of WP Google Maps Store Locator functionality, simply click
 == Frequently Asked Questions ==
 
 = How do I get WP Google Maps Pro? =
-Simply visit http://www.wpgmaps.com and purchase the WP Google Maps Professional Edition for $39.99 once off. Free updates and support included forever.
+Simply visit https://www.wpgmaps.com and purchase the WP Google Maps Professional Edition for $39.99 once off. Free updates and support included forever.
 
 = I've installed the plugin, now what? =
 Once installed and activated, a link should appear in your left navigation panel within your WP-ADMIN section. Click on the "WP Google Maps" link and follow the on screen instructions.
@@ -215,6 +216,101 @@ We no longer support timthumb and we have opted to remove it from WP Google Maps
 Please upgrade your version of WP Google Maps to version 6.0.27 as it includes multiple security improvements.
 
 == Changelog ==
+
+= 7.10.56 :- 2018-01-09 :- Medium Priority =
+* Added function WPGMZA.Distance.between
+* Removed code to disable TLS verification in WPGMZA\GoogleGeocoder
+
+= 7.10.55 :- 2018-12-27 :- Medium priority =
+* Changed GoogleMap fitBounds to accept a WPGMZA.LatLngBounds
+* Changed OLMap fitBounds to accept a WPGMZA.LatLngBounds
+* Fixed WPGMZA.LatLngBounds setting individual coordinates to LatLngs
+* Fixed WPGMZA.GoogleMap.fitBounds not working with native LatLngBounds
+
+= 7.10.54 :- 2018-12-20 :- Medium priority
+* Fixed default OpenLayers tiles being fetched over relative URL
+
+= 7.10.53 :- 2018-12-17 :- Medium priority =
+* Added missing file /html/tile-server-fieldset.html.php
+
+= 7.10.52 :- 2018-12-14 :- Low priority =
+* Fixed undefined errors when running Elementor
+* Fixed "Cannot read property 'wpgmza_iw_type' of undefined" preventing infowindow opening
+* Fixed missing spatial prefix on Marker::update_latlng
+* Added class wpgmza-gdpr-compliance to GDPR compliance notice parent div
+* Dynamic content removed from translation strings, printf now used instead
+
+= 7.10.51 :- 2018-12-11 :- Low priority =
+* Added tile server URL setting for OpenLayers
+* Fixed Google vertex context menu preventing OpenLayers engine loading in developer mode
+* Fixed Gutenberg integration module always loading scripts on front end
+
+= 7.10.50 :- 2018-12-10 :- Low priority =
+* Added blank alt attribute to OpenLayers marker img element
+* Updated WP version supported to 5.0
+
+= 7.10.49 :- 2018-12-05 :- Low priority =
+* Improved Gutenberg integration (new buttons added)
+
+= 7.10.48 :- 2018-12-03 :- Low priority =
+* Added a check for wp.editor in Gutenberg JS module 
+* Fixed InfoWindow not initialized before open called when using marker open by default setting
+* Fixed WPGMZA.OLMap returning zoom one level too far in (fixes map zooms in one level on save)
+
+= 7.10.47 :- 2018-11-22 :- Low priority =
+* Removed all redundant calls to getPlace
+* Places AutoCompletes now only request the "name" and "formatted_address" fields
+* Changed "Create an API key now" link
+ 
+= 7.10.46 :- 2018-11-20 :- Medium priority =
+* Fixed store locator circle and radius not displayed when no markers are present
+* Fixed browser compatibility code causing Gutenberg dependency failure
+* Google API version is now fixed at "Quarterly" (solves RetiredVersion notice)
+* Unified store locator circle and radius logic for both XML and DB marker pull
+* All PHP classes and methods now have documentation blocks
+* Server side documentation added in /docs/php
+* Client side documentation added in /docs/js
+
+= 7.10.45 :- 2018-11-12 :- Medium priority =
+* Fixed places autocomplete not initializing with modern store locator
+* Fixed conflict with Autoptimize with large amounts of data by bypassing CSS optimization where shortcode is present
+* Enter key now triggers search on modern store locator
+
+= 7.10.44 :- 2018-11-05 :- Medium priority =
+* Fixed Modern Store Locator Circle not working when Google Maps geometry library not loaded
+* Fixed legacy-map-edit-page.js not enqueued when Gold add-on activated (with Pro >= 7.10.30)
+* Fixed store locator circle color settings not respected in OpenLayers
+* Improved unresolved dependency report, now reports requirements
+
+= 7.10.43 :- 2018-10-31 :- High priority =
+* Improved previous security fix
+
+= 7.10.42 :- 2018-10-25 :- High priority =
+* Closed potential XSS vulnerability in PHP_SELF on map edit page
+
+= 7.10.41 :- 2018-10-24 :- Medium priority =
+* Changed exception to notice when v8 dependencies are missing (fixes issue with Pro < 7.10.37 in developer mode)
+
+= 7.10.40 :- 2018-10-17 :- Medium priority =
+* Added temporary fix for Gutenberg module dependencies preventing wpgmaps.js from loading when in Developer Mode
+* Fixed Infowindow not opening on touch device when using "hover" action
+
+= 7.10.39 :- 2018-10-15 :- High priority =
+* Fixed JS error when Gutenberg framework not loaded
+
+= 7.10.38 :- 2018-10-15 :- Medium priority =
+* Added factory class
+* Added DIVI compatibility fix
+* Added new table name constants
+* Modules added to pave the way for Gutenberg integration
+* Adjusted script loader to support external dependencies
+* Fixed trailing slash breaking rest API routes on some setups
+* Fixed wpgmza_basic_get_admin_path causing URL wrapper not supported
+*
+= 7.10.37 :- 2018-09-27 :- Medium priority =
+* Fixed undefined variable on iOS breaking store locator
+* Fixed edit marker using REST API not working when API route has two slashes
+* Fixed map not appearing with particular versions of dataTables where the packaged version is not used
 
 = 7.10.36 :- 2018-09-25 :- Medium Priority =
 * Fixed change in 7.10.35 causing problems with OLMarker click event, preventing infowindow opening

@@ -5,16 +5,50 @@
  * @summary This is the core Javascript module. Some code exists in ../core.js, the functionality there will slowly be handed over to this module.
  */
 jQuery(function($) {
+	
 	var core = {
+		/**
+		 * Indexed array of map instances
+		 * @constant {array} maps
+		 * @static
+		 */
 		maps: [],
+		
+		/**
+		 * Global EventDispatcher used to listen for global plugin events
+		 * @constant {EventDispatcher} events
+		 * @static
+		 */
 		events: null,
+		
+		/**
+		 * Settings, passed from the server
+		 * @constant {object} settings
+		 * @static
+		 */
 		settings: null,
+		
+		/**
+		 * Instance of the restAPI. Not to be confused with WPGMZA.RestAPI, which is the instances constructor
+		 * @constant {RestAPI} restAPI
+		 * @static
+		 */
+		restAPI: null,
+		
+		/**
+		 * Key and value pairs of localized strings passed from the server
+		 * @constant {object} localized_strings
+		 * @static
+		 */
+		localized_strings: null,
 		
 		loadingHTML: '<div class="wpgmza-preloader"><div class="wpgmza-loader">...</div></div>',
 		
 		/**
-		 * Override this method to add a scroll offset when using animated scroll
-		 * @return number
+		 * Override this method to add a scroll offset when using animated scroll, useful for sites with fixed headers.
+		 * @method getScrollAnimationOffset
+		 * @static
+		 * @return {number} The scroll offset
 		 */
 		getScrollAnimationOffset: function() {
 			return (WPGMZA.settings.scroll_animation_offset || 0);
@@ -22,6 +56,10 @@ jQuery(function($) {
 		
 		/**
 		 * Animated scroll, accounts for animation settings and fixed header height
+		 * @method animateScroll
+		 * @static
+		 * @param {HTMLElement} element The element to scroll to
+		 * @param {number} [milliseconds] The time in milliseconds to scroll over. Defaults to 500 if no value is specified.
 		 * @return void
 		 */
 		animateScroll: function(element, milliseconds) {
@@ -43,8 +81,8 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function guid
-		 * @summary Utility function returns a GUID
+		 * Generates and returns a GUID
+		 * @method guid
 		 * @static
 		 * @return {string} The GUID
 		 */
@@ -61,12 +99,12 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function hexOpacityToRGBA
-		 * @summary Takes a hex string and opacity value and converts it to Openlayers RGBA format
+		 * Takes a hex string and opacity value and converts it to Openlayers RGBA format
+		 * @method hexOpacityToRGBA
+		 * @static
 		 * @param {string} colour The hex color string
 		 * @param {number} opacity The opacity from 0.0 - 1.0
-		 * @static
-		 * @return {array} RGBA where color components are 0 - 255 and opacity is 0.0 - 1.0
+		 * @return {array} RGBA array where color components are 0 - 255 and opacity is 0.0 - 1.0
 		 */
 		hexOpacityToRGBA: function(colour, opacity)
 		{
@@ -79,13 +117,58 @@ jQuery(function($) {
 			];
 		},
 		
+		/**
+		 * Takes a hex color string and converts it to an RGBA object.
+		 * @method hexToRgba
+		 * @static
+		 * @param {string} hex The hex color string
+		 * @return {object} Object with r, g, b and a properties, or 0 if the input is invalid.
+		 */
+		hexToRgba: function(hex) {
+			var c;
+			if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+				c= hex.substring(1).split('');
+				if(c.length== 3){
+					c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+				}
+				c= '0x'+c.join('');
+				
+				return {
+					r: (c>>16)&255,
+					g: (c>>8)&255,
+					b: c&255,
+					a: 1
+				};
+			}
+			
+			return 0;
+			
+			//throw new Error('Bad Hex');
+		},
+		
+		/**
+		 * Takes an object with r, g, b and a properties and returns a CSS rgba color string
+		 * @method rgbaToString
+		 * @static
+		 * @param {string} rgba The input object
+		 * @return {string} The CSS rgba color string
+		 */
+		rgbaToString: function(rgba) {
+			return "rgba(" + rgba.r + ", " + rgba.g + ", " + rgba.b + ", " + rgba.a + ")";
+		},
+		
+		/**
+		 * A regular expression that matches a latitude / longitude coordinate pair
+		 * @constant {RegExp} latLngRegexp
+		 * @static
+		 */
 		latLngRegexp: /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/,
 		
 		/**
-		 * @function isLatLngString
-		 * @summary Utility function returns true is string is a latitude and longitude
-		 * @param str {string} The string to attempt to parse as coordinates
+		 * Utility function returns true is string is a latitude and longitude
+		 * @method isLatLngString
 		 * @static
+		 * @param str {string} The string to attempt to parse as coordinates
 		 * @return {array} the matched latitude and longitude or null if no match
 		 */
 		isLatLngString: function(str)
@@ -102,17 +185,17 @@ jQuery(function($) {
 			if(!m)
 				return null;
 			
-			return {
+			return new WPGMZA.LatLng({
 				lat: parseFloat(m[1]),
 				lng: parseFloat(m[3])
-			};
+			});
 		},
 		
 		/**
-		 * @function stringToLatLng
-		 * @summary Utility function returns a latLng literal given a valid latLng string
-		 * @param str {string} The string to attempt to parse as coordinates
+		 * Utility function returns a latLng literal given a valid latLng string
+		 * @method stringToLatLng
 		 * @static
+		 * @param str {string} The string to attempt to parse as coordinates
 		 * @return {object} LatLng literal
 		 */
 		stringToLatLng: function(str)
@@ -126,10 +209,10 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function stringToLatLng
-		 * @summary Utility function returns a latLng literal given a valid latLng string
-		 * @param str {string} The string to attempt to parse as coordinates
+		 * Utility function returns a latLng literal given a valid latLng string
+		 * @method stringToLatLng
 		 * @static
+		 * @param str {string} The string to attempt to parse as coordinates
 		 * @return {object} LatLng literal
 		 */
 		isHexColorString: function(str)
@@ -141,14 +224,21 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function getImageDimensions
-		 * @summary Utility function to get the dimensions of an image, caches results for best performance
-		 * @param src {string} Image source URL
-		 * @param callback {function} Callback to recieve image dimensions
-		 * @static
-		 * @return {void}
+		 * Cache of image dimensions by URL, for internal use only
+		 * @var imageDimensionsCache
+		 * @inner
+		 * @see WPGMZA.getImageDimensions
 		 */
 		imageDimensionsCache: {},
+		
+		/**
+		 * Utility function to get the dimensions of an image, caches results for best performance
+		 * @method getImageDimensions
+		 * @static
+		 * @param src {string} Image source URL
+		 * @param callback {function} Callback to recieve image dimensions
+		 * @return {void}
+		 */
 		getImageDimensions: function(src, callback)
 		{
 			if(WPGMZA.imageDimensionsCache[src])
@@ -170,9 +260,9 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function isDeveloperMode
-		 * @summary Returns true if developer mode is set
-		 * @static 
+		 * Returns true if developer mode is set or if developer mode cookie is set
+		 * @method isDeveloperMode
+		 * @static
 		 * @return {boolean} True if developer mode is on
 		 */
 		isDeveloperMode: function()
@@ -181,8 +271,8 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function isProVersion
-		 * @summary Returns true if the Pro add-on is active
+		 * Returns true if the Pro add-on is active
+		 * @method isProVersion
 		 * @static
 		 * @return {boolean} True if the Pro add-on is active
 		 */
@@ -192,8 +282,8 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function openMediaDialog
-		 * @summary Opens the WP media dialog and returns the result to a callback
+		 * Opens the WP media dialog and returns the result to a callback
+		 * @method openMediaDialog
 		 * @param {function} callback Callback to recieve the attachment ID as the first parameter and URL as the second
 		 * @static
 		 * @return {void}
@@ -241,8 +331,17 @@ jQuery(function($) {
 		 * @static
 		 * @return {object} The users position as a LatLng literal
 		 */
-		getCurrentPosition: function(callback)
+		getCurrentPosition: function(callback, watch)
 		{
+			var trigger = "userlocationfound";
+			var nativeFunction = "getCurrentPosition";
+			
+			if(watch)
+			{
+				trigger = "userlocationupdated";
+				nativeFunction = "watchPosition";
+			}
+			
 			if(!navigator.geolocation)
 			{
 				console.warn("No geolocation available on this device");
@@ -253,7 +352,7 @@ jQuery(function($) {
 				enableHighAccuracy: true
 			};
 			
-			navigator.geolocation.getCurrentPosition(function(position) {
+			navigator.geolocation[nativeFunction](function(position) {
 				if(callback)
 					callback(position);
 				
@@ -263,7 +362,7 @@ jQuery(function($) {
 				
 				options.enableHighAccuracy = false;
 				
-				navigator.geolocation.getCurrentPosition(function(position) {
+				navigator.geolocation[nativeFunction](function(position) {
 					if(callback)
 						callback(position);
 					
@@ -278,13 +377,19 @@ jQuery(function($) {
 			options);
 		},
 		
+		watchPosition: function(callback)
+		{
+			return WPGMZA.getCurrentPosition(callback, true);
+		},
+		
 		/**
-		 * @function runCatchableTask
-		 * @summary Runs a catchable task and displays a friendly error if the function throws an error
+		 * Runs a catchable task and displays a friendly error if the function throws an error
+		 * @method runCatchableTask
+		 * @static
 		 * @param {function} callback The function to run
 		 * @param {HTMLElement} friendlyErrorContainer The container element to hold the error
-		 * @static
 		 * @return {void}
+		 * @see WPGMZA.FriendlyError
 		 */
 		runCatchableTask: function(callback, friendlyErrorContainer) {
 			
@@ -302,20 +407,13 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function assertInstanceOf
-		 * @summary
-		 * This function is for checking inheritence has been setup correctly.
-		 * For objects that have engine and Pro specific classes, it will automatically
-		 * add the engine and pro prefix to the supplied string and if such an object
-		 * exists it will test against that name rather than the un-prefix argument
-		 * supplied.
+		 * This function is for checking inheritence has been setup correctly. For objects that have engine and Pro specific classes, it will automatically add the engine and pro prefix to the supplied string and if such an object exists it will test against that name rather than the un-prefix argument supplied.
 		 *
-		 * For example, if we are running the Pro addon with Google maps as the engine,
-		 * if you supply Marker as the instance name the function will check to see
-		 * if instance is an instance of GoogleProMarker
+		 * For example, if we are running the Pro addon with Google maps as the engine, if you supply Marker as the instance name the function will check to see if instance is an instance of GoogleProMarker
+		 * @method assertInstanceOf
+		 * @static
 		 * @param {object} instance The object to check
 		 * @param {string} instanceName The class name as a string which this object should be an instance of
-		 * @static
 		 * @return {void}
 		 */
 		assertInstanceOf: function(instance, instanceName) {
@@ -349,12 +447,16 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function getMapByID
-		 * @param {mixed} id The ID of the map to retrieve
+		 * @method getMapByID
 		 * @static
+		 * @param {mixed} id The ID of the map to retrieve
 		 * @return {object} The map object, or null if no such map exists
 		 */
 		getMapByID: function(id) {
+			
+			// Workaround for map ID member not set correctly
+			return MYMAP[id].map;
+			
 			for(var i = 0; i < WPGMZA.maps.length; i++) {
 				if(WPGMZA.maps[i].id == id)
 					return WPGMZA.maps[i];
@@ -364,17 +466,53 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * @function isGoogleAutocompleteSupported
-		 * @summary Shorthand function to determine if the Places Autocomplete is available
+		 * Shorthand function to determine if the Places Autocomplete is available
+		 * @method isGoogleAutocompleteSupported
 		 * @static
-		 * @return {boolean}
+		 * @return {boolean} True if the places autocomplete is available
 		 */
 		isGoogleAutocompleteSupported: function() {
 			return typeof google === 'object' && typeof google.maps === 'object' && typeof google.maps.places === 'object' && typeof google.maps.places.Autocomplete === 'function';
 		},
 		
+		/**
+		 * The Google API status script enqueue, as reported by the server
+		 * @constant
+		 * @static
+		 */
 		googleAPIStatus: window.wpgmza_google_api_status,
 		
+		/**
+		 * Makes an educated guess as to whether the browser is Safari
+		 * @method isSafari
+		 * @static
+		 * @return {boolean} True if it's likely the browser is Safari
+		 */
+		isSafari: function() {
+			
+			var ua = navigator.userAgent.toLowerCase();
+			return (ua.indexOf("safari") != -1 && ua.indexOf("chrome") == -1);
+			
+		},
+		
+		/**
+		 * Makes an educated guess as to whether the browser is running on a touch device
+		 * @method isTouchDevice
+		 * @static
+		 * @return {boolean} True if it's likely the browser is running on a touch device
+		 */
+		isTouchDevice: function() {
+			
+			return ("ontouchstart" in window);
+			
+		},
+		
+		/**
+		 * Makes an educated guess whether the browser is running on an iOS device
+		 * @method isDeviceiOS
+		 * @static
+		 * @return {boolean} True if it's likely the browser is running on an iOS device
+		 */
 		isDeviceiOS: function() {
 			
 			return (
@@ -453,11 +591,24 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Reverse compatibility module
+	 *
+	 * @class WPGMZA.Compatibility
+	 * @constructor WPGMZA.Compatibility
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.Compatibility = function()
 	{
 		this.preventDocumentWriteGoogleMapsAPI();
 	}
 	
+	/**
+	 * Prevents document.write from outputting Google Maps API script tag
+	 *
+	 * @method
+	 * @memberof WPGMZA.Compatibility
+	 */
 	WPGMZA.Compatibility.prototype.preventDocumentWriteGoogleMapsAPI = function()
 	{
 		var old = document.write;
@@ -477,10 +628,10 @@ jQuery(function($) {
 
 // js/v8/css-escape.js
 /**
- * @module WPGMZA.CSS
+ * Polyfill for CSS.escape, with thanks to @mathias
  * @namespace WPGMZA
+ * @module CSS
  * @requires WPGMZA
- * @summary Polyfill for CSS.escape, with thanks to @mathias
  */
 
 /*! https://mths.be/cssescape v1.5.1 by @mathias | MIT license */
@@ -592,25 +743,66 @@ jQuery(function($) {
 
 // js/v8/distance.js
 /**
+ * Collection of distance utility functions and constants
  * @namespace WPGMZA
  * @module Distance
  * @requires WPGMZA
  */
 jQuery(function($) {
 	
+	var earthRadiusMeters = 6371;
+	var piTimes360 = Math.PI / 360;
+	
+	function deg2rad(deg) {
+	  return deg * (Math.PI/180)
+	};
+	
+	/**
+	 * @class WPGMZA.Distance
+	 * @memberof WPGMZA
+	 * @deprecated Will be dropped wiht the introduction of global distance units
+	 */
 	WPGMZA.Distance = {
 		
+		/**
+		 * Miles, represented as true by legacy versions of the plugin
+		 * @constant MILES
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 */
 		MILES:					true,
+		
+		/**
+		 * Kilometers, represented as false by legacy versions of the plugin
+		 * @constant KILOMETERS
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 */
 		KILOMETERS:				false,
 		
+		/**
+		 * Miles per kilometer
+		 * @constant MILES_PER_KILOMETER
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 */
 		MILES_PER_KILOMETER:	0.621371,
-		KILOMETERS_PER_MILE:	1.60934,
 		
-		// TODO: Implement WPGMZA.settings.distance_units
+		/**
+		 * Kilometers per mile
+		 * @constant KILOMETERS_PER_MILE
+		 * @static
+		 */
+		KILOMETERS_PER_MILE:	1.60934,
 		
 		/**
 		 * Converts a UI distance (eg from a form control) to meters,
 		 * accounting for the global units setting
+		 * @method uiToMeters
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 * @param {number} uiDistance The distance from the UI, could be in miles or kilometers depending on settings
+		 * @return {number} The input distance in meters
 		 */
 		uiToMeters: function(uiDistance)
 		{
@@ -620,6 +812,11 @@ jQuery(function($) {
 		/**
 		 * Converts a UI distance (eg from a form control) to kilometers,
 		 * accounting for the global units setting
+		 * @method uiToKilometers
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 * @param {number} uiDistance The distance from the UI, could be in miles or kilometers depending on settings
+		 * @return {number} The input distance in kilometers
 		 */
 		uiToKilometers: function(uiDistance)
 		{
@@ -627,19 +824,70 @@ jQuery(function($) {
 		},
 		
 		/**
-		 * Converts a UI distance (eg from a form control) to miles,
-		 * accounting for the global units setting
+		 * Converts a UI distance (eg from a form control) to miles, according to settings
+		 * @method uiToMiles
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 * @param {number} uiDistance The distance from the UI, could be in miles or kilometers depending on settings
+		 * @return {number} The input distance 
 		 */
 		uiToMiles: function(uiDistance)
 		{
 			return WPGMZA.Distance.uiToKilometers(uiDistance) * WPGMZA.Distance.MILES_PER_KILOMETER;
 		},
 		
+		/**
+		 * Converts kilometers to a UI distance, either the same value, or converted to miles depending on settings.
+		 * @method kilometersToUI
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 * @param {number} km The input distance in kilometers
+		 * @param {number} The UI distance in the units specified by settings
+		 */
 		kilometersToUI: function(km)
 		{
 			if(WPGMZA.settings.distance_units == WPGMZA.Distance.MILES)
 				return km * WPGMZA.Distance.MILES_PER_KILOMETER;
 			return km;
+		},
+		
+		/**
+		 * Returns the distance, in kilometers, between two LatLng's
+		 * @method between
+		 * @static
+		 * @memberof WPGMZA.Distance
+		 * @param {WPGMZA.Latlng} The first point
+		 * @param {WPGMZA.Latlng} The second point
+		 * @return {number} The distance, in kilometers
+		 */
+		between: function(a, b)
+		{
+			if(!(a instanceof WPGMZA.LatLng))
+				throw new Error("First argument must be an instance of WPGMZA.LatLng");
+			
+			if(!(b instanceof WPGMZA.LatLng))
+				throw new Error("Second argument must be an instance of WPGMZA.LatLng");
+			
+			if(a === b)
+				return 0.0;
+			
+			var lat1 = a.lat;
+			var lon1 = a.lng;
+			var lat2 = b.lat;
+			var lon2 = b.lng;
+			
+			var dLat = deg2rad(lat2-lat1);
+			var dLon = deg2rad(lon2-lon1); 
+			
+			var a = 
+				Math.sin(dLat/2) * Math.sin(dLat/2) +
+				Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+				Math.sin(dLon/2) * Math.sin(dLon/2); 
+				
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+			var d = earthRadiusMeters * c; // Distance in km
+			
+			return d;
 		}
 		
 	};
@@ -654,6 +902,12 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Base class for any (non HTMLElement) object which dispatches or listens for events
+	 * @class WPGMZA.EventDispatcher
+	 * @constructor WPGMZA.EventDispatcher
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.EventDispatcher = function()
 	{
 		WPGMZA.assertInstanceOf(this, "EventDispatcher");
@@ -661,6 +915,15 @@ jQuery(function($) {
 		this._listenersByType = [];
 	}
 
+	/**
+	 * Adds an event listener on this object
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @param {string} type The event type, or multiple types separated by spaces
+	 * @param {function} callback The callback to call when the event fires
+	 * @param {object} [thisObject] The object to use as "this" when firing the callback
+	 * @param {bool} [useCapture] If true, fires the callback on the capture phase, as opposed to bubble phase
+	 */
 	WPGMZA.EventDispatcher.prototype.addEventListener = function(type, listener, thisObject, useCapture)
 	{
 		var arr;
@@ -689,8 +952,23 @@ jQuery(function($) {
 		arr.push(obj);
 	}
 
+	/**
+	 * Alias for addEventListener
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @see WPGMZA.EventDispatcher#addEventListener
+	 */
 	WPGMZA.EventDispatcher.prototype.on = WPGMZA.EventDispatcher.prototype.addEventListener;
 
+	/**
+	 * Removes event listeners from this object
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @param {string} type The event type to remove listeners from
+	 * @param {function} [listener] The function to remove. If omitted, all listeners will be removed
+	 * @param {object} [thisObject] Use the parameter to remove listeners bound with the same thisObject
+	 * @param {bool} [useCapture] Remove the capture phase event listener. Otherwise, the bubble phase event listener will be removed.
+	 */
 	WPGMZA.EventDispatcher.prototype.removeEventListener = function(type, listener, thisObject, useCapture)
 	{
 		var arr, index, obj;
@@ -715,13 +993,32 @@ jQuery(function($) {
 		}
 	}
 
+	/**
+	 * Alias for removeEventListener
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @see WPGMZA.EventDispatcher#removeEventListener
+	 */
 	WPGMZA.EventDispatcher.prototype.off = WPGMZA.EventDispatcher.prototype.removeEventListener;
 
+	/**
+	 * Test for listeners of type on this object
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @param {string} type The event type to test for
+	 * @return {bool} True if this object has listeners bound for the specified type
+	 */
 	WPGMZA.EventDispatcher.prototype.hasEventListener = function(type)
 	{
 		return (_listenersByType[type] ? true : false);
 	}
 
+	/**
+	 * Fires an event on this object
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @param {string|WPGMZA.Event} event Either the event type as a string, or an instance of WPGMZA.Event
+	 */
 	WPGMZA.EventDispatcher.prototype.dispatchEvent = function(event)
 	{
 		if(!(event instanceof WPGMZA.Event))
@@ -775,8 +1072,20 @@ jQuery(function($) {
 		}
 	}
 
+	/**
+	 * Alias for removeEventListener
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @see WPGMZA.EventDispatcher#removeEventListener
+	 */
 	WPGMZA.EventDispatcher.prototype.trigger = WPGMZA.EventDispatcher.prototype.dispatchEvent;
 
+	/**
+	 * Handles the logic of triggering listeners
+	 * @method
+	 * @memberof WPGMZA.EventDispatcher
+	 * @inner
+	 */
 	WPGMZA.EventDispatcher.prototype._triggerListeners = function(event)
 	{
 		var arr, obj;
@@ -807,6 +1116,13 @@ jQuery(function($) {
  */ 
 jQuery(function($) {
 		
+	/**
+	 * Base class used for events (for non-HTMLElement objects)
+	 * @class WPGMZA.Event
+	 * @constructor WPGMZA.Event
+	 * @memberof WPGMZA
+	 * @param {string|object} options The event type as a string, or an object of options to be mapped to this event
+	 */
 	WPGMZA.Event = function(options)
 	{
 		if(typeof options == "string")
@@ -828,6 +1144,11 @@ jQuery(function($) {
 	WPGMZA.Event.AT_TARGET				= 1;
 	WPGMZA.Event.BUBBLING_PHASE			= 2;
 
+	/**
+	 * Prevents any further propagation of this event
+	 * @method
+	 * @memberof WPGMZA.Event
+	 */
 	WPGMZA.Event.prototype.stopPropagation = function()
 	{
 		this._cancelled = true;
@@ -842,6 +1163,18 @@ jQuery(function($) {
  * @requires WPGMZA
  */
 jQuery(function($) {
+	
+	/**
+	 * Deprecated
+	 * @class WPGMZA.FriendlyError
+	 * @constructor WPGMZA.FriendlyError
+	 * @memberof WPGMZA
+	 * @deprecated
+	 */
+	WPGMZA.FriendlyError = function()
+	{
+		
+	}
 	
 	/*var template = '\
 		<div class="notice notice-error"> \
@@ -877,15 +1210,45 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Base class for geocoders. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Geocoder
+	 * @constructor WPGMZA.Geocoder
+	 * @memberof WPGMZA
+	 * @see WPGMZA.Geocoder.createInstance
+	 */
 	WPGMZA.Geocoder = function()
 	{
 		WPGMZA.assertInstanceOf(this, "Geocoder");
 	}
 	
+	/**
+	 * Indicates a successful geocode, with one or more results
+	 * @constant SUCCESS
+	 * @memberof WPGMZA.Geocoder
+	 */
 	WPGMZA.Geocoder.SUCCESS			= "success";
+	
+	/**
+	 * Indicates the geocode was successful, but returned no results
+	 * @constant ZERO_RESULTS
+	 * @memberof WPGMZA.Geocoder
+	 */
 	WPGMZA.Geocoder.ZERO_RESULTS	= "zero-results";
+	
+	/**
+	 * Indicates the geocode failed, usually due to technical reasons (eg connectivity)
+	 * @constant FAIL
+	 * @memberof WPGMZA.Geocoder
+	 */
 	WPGMZA.Geocoder.FAIL			= "fail";
 	
+	/**
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.Geocoder
+	 * @return {function} The appropriate contructor
+	 */
 	WPGMZA.Geocoder.getConstructor = function()
 	{
 		switch(WPGMZA.settings.engine)
@@ -900,12 +1263,26 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Creates an instance of a Geocoder, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>
+	 * @method
+	 * @memberof WPGMZA.Geocoder
+	 * @return {WPGMZA.Geocoder} A subclass of WPGMZA.Geocoder
+	 */
 	WPGMZA.Geocoder.createInstance = function()
 	{
 		var constructor = WPGMZA.Geocoder.getConstructor();
 		return new constructor();
 	}
 	
+	/**
+	 * Attempts to convert a street address to an array of potential coordinates that match the address, which are passed to a callback. If the address is interpreted as a latitude and longitude coordinate pair, the callback is immediately fired.
+	 * @method
+	 * @memberof WPGMZA.Geocoder
+	 * @param {object} options The options to geocode, address is mandatory.
+	 * @param {function} callback The callback to receive the geocode result.
+	 * @return {void}
+	 */
 	WPGMZA.Geocoder.prototype.getLatLngFromAddress = function(options, callback)
 	{
 		if(WPGMZA.isLatLngString(options.address))
@@ -919,12 +1296,28 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Attempts to convert latitud eand longitude coordinates into a street address. By default this will simply return the coordinates wrapped in an array.
+	 * @method
+	 * @memberof WPGMZA.Geocoder
+	 * @param {object} options The options to geocode, latLng is mandatory.
+	 * @param {function} callback The callback to receive the geocode result.
+	 * @return {void}
+	 */
 	WPGMZA.Geocoder.prototype.getAddressFromLatLng = function(options, callback)
 	{
 		var latLng = new WPGMZA.LatLng(options.latLng);
 		callback([latLng.toString()], WPGMZA.Geocoder.SUCCESS);
 	}
 	
+	/**
+	 * Geocodes either an address or a latitude and longitude coordinate pair, depending on the input
+	 * @method
+	 * @memberof WPGMZA.Geocoder
+	 * @param {object} options The options to geocode, you must supply <em>either</em> latLng <em>or</em> address.
+	 * @throws You must supply either a latLng or address
+	 * @return {void}
+	 */
 	WPGMZA.Geocoder.prototype.geocode = function(options, callback)
 	{
 		if("address" in options)
@@ -945,6 +1338,12 @@ jQuery(function($) {
  */
 jQuery(function($) { 
 
+	/**
+	 * This class catches Google Maps API errors and presents them in a friendly manner, before sending them on to the consoles default error handler.
+	 * @class WPGMZA.GoogleAPIErrorHandler
+	 * @constructor WPGMZA.GoogleAPIErrorHandler
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.GoogleAPIErrorHandler = function() {
 		
 		var self = this;
@@ -981,6 +1380,12 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Overrides console.error to scan the error message for Google Maps API error messages.
+	 * @method 
+	 * @memberof WPGMZA.GoogleAPIErrorHandler
+	 * @param {string} message The error message passed to the console
+	 */
 	WPGMZA.GoogleAPIErrorHandler.prototype.onErrorMessage = function(message)
 	{
 		var m;
@@ -997,6 +1402,13 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Called by onErrorMessage when a Google Maps API error is picked up, this will add the specified message to the Maps API error message dialog, along with URLs to compliment it. This function ignores duplicate error messages.
+	 * @method
+	 * @memberof WPGMZA.GoogleAPIErrorHandler
+	 * @param {string} message The message, or part of the message, intercepted from the console
+	 * @param {array} [urls] An array of URLs relating to the error message to compliment the message.
+	 */
 	WPGMZA.GoogleAPIErrorHandler.prototype.addErrorMessage = function(message, urls)
 	{
 		if(this.messagesAlreadyDisplayed[message])
@@ -1075,6 +1487,13 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Base class for infoWindows. This acts as an abstract class so that infoWindows for both Google and OpenLayers can be interacted with seamlessly by the overlying logic. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.InfoWindow
+	 * @constructor WPGMZA.InfoWindow
+	 * @memberof WPGMZA
+	 * @see WPGMZA.InfoWindow.createInstance
+	 */
 	WPGMZA.InfoWindow = function(mapObject)
 	{
 		var self = this;
@@ -1107,6 +1526,12 @@ jQuery(function($) {
 	WPGMZA.InfoWindow.OPEN_BY_CLICK = 1;
 	WPGMZA.InfoWindow.OPEN_BY_HOVER = 2;
 	
+	/**
+	 * Fetches the constructor to be used by createInstance, based on the selected maps engine
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 * @return {function} The appropriate constructor
+	 */
 	WPGMZA.InfoWindow.getConstructor = function()
 	{
 		switch(WPGMZA.settings.engine)
@@ -1125,6 +1550,12 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Creates an instance of an InfoWindow, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 * @param {object} options Options for the object (optional)
+	 */
 	WPGMZA.InfoWindow.createInstance = function(mapObject)
 	{
 		var constructor = this.getConstructor();
@@ -1133,6 +1564,8 @@ jQuery(function($) {
 	
 	/**
 	 * Gets the content for the info window and passes it to the specified callback - this allows for delayed loading (eg AJAX) as well as instant content
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
 	 * @return void
 	 */
 	WPGMZA.InfoWindow.prototype.getContent = function(callback)
@@ -1146,8 +1579,12 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Opens the info window
-	 * @return boolean FALSE if the info window should not & will not open, TRUE if it will
+	 * Opens the info window on the specified map, with the specified map object as the subject.
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 * @param {WPGMZA.Map} map The map to open this InfoWindow on.
+	 * @param {WPGMZA.MapObject} mapObject The map object (eg marker, polygon) to open this InfoWindow on.
+	 * @return boolean FALSE if the info window should not and will not open, TRUE if it will. This can be used by subclasses to establish whether or not the subclassed open should bail or open the window.
 	 */
 	WPGMZA.InfoWindow.prototype.open = function(map, mapObject)
 	{
@@ -1161,16 +1598,31 @@ jQuery(function($) {
 		return true;
 	}
 	
+	/**
+	 * Abstract function, closes this InfoWindow
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 */
 	WPGMZA.InfoWindow.prototype.close = function()
 	{
 		
 	}
 	
+	/**
+	 * Abstract function, sets the content in this InfoWindow
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 */
 	WPGMZA.InfoWindow.prototype.setContent = function(options)
 	{
 		
 	}
 	
+	/**
+	 * Abstract function, sets options on this InfoWindow
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
+	 */
 	WPGMZA.InfoWindow.prototype.setOptions = function(options)
 	{
 		
@@ -1178,6 +1630,8 @@ jQuery(function($) {
 	
 	/**
 	 * Event listener for when the map object is added. This will cause the info window to open if the map object has infoopen set
+	 * @method
+	 * @memberof WPGMZA.InfoWindow
 	 * @return void
 	 */
 	WPGMZA.InfoWindow.prototype.onMapObjectAdded = function()
@@ -1197,9 +1651,12 @@ jQuery(function($) {
 jQuery(function($) {
 
 	/**
-	 * Constructor
-	 * @param mixed A latLng literal, or latitude
-	 * @param mixed The latitude, where arg is a longitude
+	 * This class represents a latitude and longitude coordinate pair, and provides utilities to work with coordinates, parsing and conversion.
+	 * @class WPGMZA.LatLng
+	 * @constructor WPGMZA.LatLng
+	 * @memberof WPGMZA
+	 * @param {number|object} arg A latLng literal, or latitude
+	 * @param {number} [lng] The latitude, where arg is a longitude
 	 */
 	WPGMZA.LatLng = function(arg, lng)
 	{
@@ -1239,8 +1696,21 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * A regular expression which matches latitude and longitude coordinate pairs from a string. Matches 1 and 3 correspond to latitude and longitude, respectively,
+	 * @constant {RegExp}
+	 * @memberof WPGMZA.LatLng
+	 */
 	WPGMZA.LatLng.REGEXP = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;
 	
+	/**
+	 * Returns true if the supplied object is a LatLng literal, also returns true for instances of WPGMZA.LatLng
+	 * @method
+	 * @static
+	 * @memberof WPGMZA.LatLng
+	 * @param {object} obj A LatLng literal, or an instance of WPGMZA.LatLng
+	 * @return {bool} True if this object is a valid LatLng literal or instance of WPGMZA.LatLng
+	 */
 	WPGMZA.LatLng.isValid = function(obj)
 	{
 		if(typeof obj != "object")
@@ -1252,6 +1722,11 @@ jQuery(function($) {
 		return true;
 	}
 	
+	/**
+	 * The latitude, guaranteed to be a number
+	 * @property lat
+	 * @memberof WPGMZA.LatLng
+	 */
 	Object.defineProperty(WPGMZA.LatLng.prototype, "lat", {
 		get: function() {
 			return this._lat;
@@ -1263,6 +1738,11 @@ jQuery(function($) {
 		}
 	});
 	
+	/**
+	 * The longitude, guaranteed to be a number
+	 * @property lng
+	 * @memberof WPGMZA.LatLng
+	 */
 	Object.defineProperty(WPGMZA.LatLng.prototype, "lng", {
 		get: function() {
 			return this._lng;
@@ -1274,11 +1754,25 @@ jQuery(function($) {
 		}
 	});
 	
+	/**
+	 * Returns this latitude and longitude as a string
+	 * @method
+	 * @memberof WPGMZA.LatLng
+	 * @return {string} This object represented as a string
+	 */
 	WPGMZA.LatLng.prototype.toString = function()
 	{
 		return this._lat + ", " + this._lng;
 	}
 	
+	/**
+	 * Returns an instnace of WPGMZA.LatLng from an instance of google.maps.LatLng
+	 * @method
+	 * @static
+	 * @memberof WPGMZA.LatLng
+	 * @param {google.maps.LatLng} The google.maps.LatLng to convert
+	 * @return {WPGMZA.LatLng} An instance of WPGMZA.LatLng built from the supplied google.maps.LatLng
+	 */
 	WPGMZA.LatLng.fromGoogleLatLng = function(googleLatLng)
 	{
 		return new WPGMZA.LatLng(
@@ -1287,6 +1781,12 @@ jQuery(function($) {
 		);
 	}
 	
+	/**
+	 * Returns an instance of google.maps.LatLng with the same coordinates as this object
+	 * @method
+	 * @memberof WPGMZA.LatLng
+	 * @return {google.maps.LatLng} This object, expressed as a google.maps.LatLng
+	 */
 	WPGMZA.LatLng.prototype.toGoogleLatLng = function()
 	{
 		return new google.maps.LatLng({
@@ -1296,10 +1796,12 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function moveByDistance
-	 * @summary Moves this latLng by the specified kilometers along the given heading
-	 * @return void
-	 * With many thanks to Hu Kenneth - https://gis.stackexchange.com/questions/234473/get-a-lonlat-point-by-distance-or-between-2-lonlat-points
+	 * Moves this latLng by the specified kilometers along the given heading. This function operates in place, as opposed to creating a new instance of WPGMZA.LatLng. With many thanks to Hu Kenneth - https://gis.stackexchange.com/questions/234473/get-a-lonlat-point-by-distance-or-between-2-lonlat-points
+	 * @method
+	 * @memberof WPGMZA.LatLng
+	 * @param {number} kilometers The number of kilometers to move this LatLng by
+	 * @param {number} heading The heading, in degrees, to move along, where zero is North
+	 * @return {void}
 	 */
 	WPGMZA.LatLng.prototype.moveByDistance = function(kilometers, heading)
 	{
@@ -1335,26 +1837,46 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * This class represents latitude and longitude bounds as a rectangular area.
+	 * NB: This class is not fully implemented
+	 * @class WPGMZA.LatLngBounds
+	 * @constructor WPGMZA.LatLngBounds
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.LatLngBounds = function(southWest, northEast)
 	{
 		
 	}
 	
+	/**
+	 * Returns true if this object is in it's initial state (eg no points specified to gather bounds from)
+	 * @method
+	 * @memberof WPGMZA.LatLngBounds
+	 * @return {bool} True if the object is in it's initial state
+	 */
 	WPGMZA.LatLngBounds.prototype.isInInitialState = function()
 	{
 		return (this.north == undefined && this.south == undefined && this.west == undefined && this.east == undefined);
 	}
 	
+	/**
+	 * Extends this bounds object to encompass the given latitude and longitude coordinates
+	 * @method
+	 * @memberof WPGMZA.LatLngBounds
+	 * @param {object|WPGMZA.LatLng} latLng either a LatLng literal or an instance of WPGMZA.LatLng
+	 */
 	WPGMZA.LatLngBounds.prototype.extend = function(latLng)
 	{
-		if(this.isInInitialState())
-		{
-			this.north = this.south = this.west = this.east = new WPGMZA.LatLng(latLng);
-			return;
-		}
-		
 		if(!(latLng instanceof WPGMZA.LatLng))
 			latLng = new WPGMZA.LatLng(latLng);
+		
+		if(this.isInInitialState())
+		{
+			this.north = this.south = latLng.lat;
+			this.west = this.east = latLng.lng;
+			return;
+		}
 		
 		if(latLng.lat < this.north)
 			this.north = latLng.lat;
@@ -1380,6 +1902,13 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Base class for Map Objects (known as Features in Map Block), that is, markers, polygons, polylines, circles, rectangles and heatmaps. Implements functionality shared by all map objects, such as parsing geometry and serialization.
+	 * @class WPGMZA.MapObject
+	 * @constructor WPGMZA.MapObject
+	 * @memberof WPGMZA
+	 * @augments WPGMZA.EventDispatcher
+	 */
 	WPGMZA.MapObject = function(row)
 	{
 		var self = this;
@@ -1429,6 +1958,13 @@ jQuery(function($) {
 	WPGMZA.MapObject.prototype = Object.create(WPGMZA.EventDispatcher.prototype);
 	WPGMZA.MapObject.prototype.constructor = WPGMZA.MapObject;
 	
+	/**
+	 * Scans a string for all floating point numbers and build an array of latitude and longitude literals from the matched numbers
+	 * @method
+	 * @memberof WPGMZA.MapObject
+	 * @param {string} string The string to parse numbers from
+	 * @return {array} An array of LatLng literals parsed from the string
+	 */
 	WPGMZA.MapObject.prototype.parseGeometry = function(string)
 	{
 		var stripped, pairs, coords, results = [];
@@ -1447,6 +1983,12 @@ jQuery(function($) {
 		return results;
 	}
 	
+	/**
+	 * Returns a copy of this object as a JSON object for serializsation
+	 * @method
+	 * @memberof WPGMZA.MapObject
+	 * @return {object} This object as represented by JSON
+	 */
 	WPGMZA.MapObject.prototype.toJSON = function()
 	{
 		return {
@@ -1469,9 +2011,12 @@ jQuery(function($) {
 	var Parent = WPGMZA.MapObject;
 	
 	/**
-	 * @class Circle
-	 * @summary Represents a generic circle. <b>Please do not instantiate this object directly, use createInstance</b>
-	 * @return {WPGMZA.Circle}
+	 * Base class for circles. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Circle
+	 * @constructor WPGMZA.Circle
+	 * @memberof WPGMZA
+	 * @augments WPGMZA.MapObject
+	 * @see WPGMZA.Circle.createInstance
 	 */
 	WPGMZA.Circle = function(options, engineCircle)
 	{
@@ -1489,8 +2034,9 @@ jQuery(function($) {
 	WPGMZA.Circle.prototype.constructor = WPGMZA.Circle;
 	
 	/**
-	 * @function createInstance
-	 * @summary Creates an instance of a circle, <b>please always use this function rather than calling the constructor directly</b>
+	 * Creates an instance of a circle, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.Circle
 	 * @param {object} options Options for the object (optional)
 	 */
 	WPGMZA.Circle.createInstance = function(options)
@@ -1506,7 +2052,10 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function getCenter
+	 * Gets the circles center
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
 	 * @returns {WPGMZA.LatLng}
 	 */
 	WPGMZA.Circle.prototype.getCenter = function()
@@ -1515,9 +2064,11 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function setCenter
+	 * Sets the circles center
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
 	 * @param {object|WPGMZA.LatLng} latLng either a literal or as a WPGMZA.LatLng
-	 * @returns {void}
 	 */
 	WPGMZA.Circle.prototype.setCenter = function(latLng)
 	{
@@ -1526,8 +2077,11 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function getRadius
-	 * @summary Returns the circles radius in kilometers
+	 * Gets the circles radius, in kilometers
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
+	 * @param {object|WPGMZA.LatLng} latLng either a literal or as a WPGMZA.LatLng
 	 * @returns {WPGMZA.LatLng}
 	 */
 	WPGMZA.Circle.prototype.getRadius = function()
@@ -1536,8 +2090,11 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function setRadius
-	 * @param {number} The radius
+	 * Sets the circles radius, in kilometers
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
+	 * @param {number} radius The radius
 	 * @returns {void}
 	 */
 	WPGMZA.Circle.prototype.setRadius = function(radius)
@@ -1546,8 +2103,10 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function getMap
-	 * @summary Returns the map that this circle is being displayed on
+	 * Returns the map that this circle is being displayed on
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
 	 * @return {WPGMZA.Map}
 	 */
 	WPGMZA.Circle.prototype.getMap = function()
@@ -1556,9 +2115,11 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * @function setMap
-	 * @param {WPGMZA.Map} The target map
-	 * @summary Puts this circle on a map
+	 * Puts this circle on a map
+	 *
+	 * @method
+	 * @memberof WPGMZA.Circle
+	 * @param {WPGMZA.Map} map The target map
 	 * @return {void}
 	 */
 	WPGMZA.Circle.prototype.setMap = function(map)
@@ -1581,6 +2142,12 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * This class helps manage the map settings pageX
+	 * @class WPGMZA.MapSettingsPage
+	 * @constructor WPGMZA.MapSettingsPage
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.MapSettingsPage = function()
 	{
 		var self = this;
@@ -1597,6 +2164,11 @@ jQuery(function($) {
 		});
 	}
 	
+	/**
+	 * Updates engine specific controls, hiding irrelevant controls (eg Google controls when OpenLayers is the selected engine) and showing relevant controls.
+	 * @method
+	 * @memberof WPGMZA.MapSettingsPage
+	 */
 	WPGMZA.MapSettingsPage.prototype.updateEngineSpecificControls = function()
 	{
 		var engine = $("select[name='wpgmza_maps_engine']").val();
@@ -1605,6 +2177,11 @@ jQuery(function($) {
 		$("[data-required-maps-engine='" + engine + "']").show();
 	}
 	
+	/**
+	 * Updates the GDPR controls (eg visibility state) based on the selected GDPR settings
+	 * @method
+	 * @memberof WPGMZA.MapSettingsPage
+	 */
 	WPGMZA.MapSettingsPage.prototype.updateGDPRControls = function()
 	{
 		var showNoticeControls = $("input[name='wpgmza_gdpr_require_consent_before_load']").prop("checked");
@@ -1654,6 +2231,12 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Handles map settings, parsing them from the data-settings attribute on the maps HTML element.
+	 * NB: This will be split into GoogleMapSettings and OLMapSettings in the future.
+	 * @class WPGMZA.MapSettings
+	 * @constructor WPGMZA.MapSettings
+	 */
 	WPGMZA.MapSettings = function(element)
 	{
 		var str = element.getAttribute("data-settings");
@@ -1682,6 +2265,12 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Returns settings on this object converted to OpenLayers view options
+	 * @method
+	 * @memberof WPGMZA.MapSettings
+	 * @return {object} The map settings, in a format understood by OpenLayers
+	 */
 	WPGMZA.MapSettings.prototype.toOLViewOptions = function()
 	{
 		var options = {
@@ -1735,6 +2324,12 @@ jQuery(function($) {
 		return options;
 	}
 	
+	/**
+	 * Returns settings on this object converted to Google's MapOptions spec.
+	 * @method
+	 * @memberof WPGMZA.MapSettings
+	 * @return {object} The map settings, in the format specified by google.maps.MapOptions
+	 */
 	WPGMZA.MapSettings.prototype.toGoogleMapsOptions = function()
 	{
 		var self = this;
@@ -1838,8 +2433,13 @@ jQuery(function($) {
 jQuery(function($) {
 	
 	/**
-	 * Constructor
-	 * @param element to contain map
+	 * Base class for maps. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Map
+	 * @constructor WPGMZA.Map
+	 * @memberof WPGMZA
+	 * @param {HTMLElement} element to contain map
+	 * @param {object} [options] Options to apply to this map
+	 * @augments WPGMZA.EventDispatcher
 	 */
 	WPGMZA.Map = function(element, options)
 	{
@@ -1873,6 +2473,12 @@ jQuery(function($) {
 	WPGMZA.Map.prototype = Object.create(WPGMZA.EventDispatcher.prototype);
 	WPGMZA.Map.prototype.constructor = WPGMZA.Map;
 	
+	/**
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @return {function} The appropriate contructor
+	 */
 	WPGMZA.Map.getConstructor = function()
 	{
 		switch(WPGMZA.settings.engine)
@@ -1892,7 +2498,15 @@ jQuery(function($) {
 				break;
 		}
 	}
-	
+
+	/**
+	 * Creates an instance of a map, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {HTMLElement} element to contain map
+	 * @param {object} [options] Options to apply to this map
+	 * @return {WPGMZA.Map} An instance of WPGMZA.Map
+	 */
 	WPGMZA.Map.createInstance = function(element, options)
 	{
 		var constructor = WPGMZA.Map.getConstructor();
@@ -1901,7 +2515,8 @@ jQuery(function($) {
 	
 	/**
 	 * Loads the maps settings and sets some defaults
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
 	 */
 	WPGMZA.Map.prototype.loadSettings = function(options)
 	{
@@ -1922,17 +2537,9 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * This override should automatically dispatch a .wpgmza scoped event on the element
-	 * TODO: Implement
-	 */
-	/*WPGMZA.Map.prototype.trigger = function(event)
-	{
-		
-	}*/
-	
-	/**
 	 * Sets options in bulk on map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
 	 */
 	WPGMZA.Map.prototype.setOptions = function(options)
 	{
@@ -1940,11 +2547,6 @@ jQuery(function($) {
 			this.settings[name] = options[name];
 	}
 	
-	/**
-	 * Gets the distance between two latLngs in kilometers
-	 * NB: Static function
-	 * @return number
-	 */
 	var earthRadiusMeters = 6371;
 	var piTimes360 = Math.PI / 360;
 	
@@ -1955,7 +2557,13 @@ jQuery(function($) {
 	/**
 	 * This gets the distance in kilometers between two latitude / longitude points
 	 * TODO: Move this to the distance class, or the LatLng class
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {number} lat1 Latitude from the first coordinate pair
+	 * @param {number} lon1 Longitude from the first coordinate pair
+	 * @param {number} lat2 Latitude from the second coordinate pair
+	 * @param {number} lon1 Longitude from the second coordinate pair
+	 * @return {number} The distance between the latitude and longitudes, in kilometers
 	 */
 	WPGMZA.Map.getGeographicDistance = function(lat1, lon1, lat2, lon2)
 	{
@@ -1973,6 +2581,12 @@ jQuery(function($) {
 		return d;
 	}
 	
+	/**
+	 * Centers the map on the supplied latitude and longitude
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {object|WPGMZA.LatLng} latLng A LatLng literal or an instance of WPGMZA.LatLng
+	 */
 	WPGMZA.Map.prototype.setCenter = function(latLng)
 	{
 		if(!("lat" in latLng && "lng" in latLng))
@@ -1980,8 +2594,11 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Sets the dimensions of the map
-	 * @return void
+	 * Sets the dimensions of the map engine element
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {number} width Width as a CSS string
+	 * @param {number} height Height as a CSS string
 	 */
 	WPGMZA.Map.prototype.setDimensions = function(width, height)
 	{
@@ -1997,7 +2614,12 @@ jQuery(function($) {
 	
 	/**
 	 * Adds the specified marker to this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Marker} marker The marker to add
+	 * @fires markeradded
+	 * @fires WPGMZA.Marker#added
+	 * @throws Argument must be an instance of WPGMZA.Marker
 	 */
 	WPGMZA.Map.prototype.addMarker = function(marker)
 	{
@@ -2014,7 +2636,13 @@ jQuery(function($) {
 	
 	/**
 	 * Removes the specified marker from this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Marker} marker The marker to remove
+	 * @fires markerremoved
+	 * @fires WPGMZA.Marker#removed
+	 * @throws Argument must be an instance of WPGMZA.Marker
+	 * @throws Wrong map error
 	 */
 	WPGMZA.Map.prototype.removeMarker = function(marker)
 	{
@@ -2032,6 +2660,13 @@ jQuery(function($) {
 		marker.dispatchEvent({type: "removed"});
 	}
 	
+	/**
+	 * Gets a marker by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the marker to get
+	 * @return {WPGMZA.Marker|null} The marker, or null if no marker with the specified ID is found
+	 */
 	WPGMZA.Map.prototype.getMarkerByID = function(id)
 	{
 		for(var i = 0; i < this.markers.length; i++)
@@ -2043,6 +2678,14 @@ jQuery(function($) {
 		return null;
 	}
 	
+	/**
+	 * Removes a marker by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the marker to remove
+	 * @fires markerremoved
+	 * @fires WPGMZA.Marker#removed
+	 */
 	WPGMZA.Map.prototype.removeMarkerByID = function(id)
 	{
 		var marker = this.getMarkerByID(id);
@@ -2055,7 +2698,11 @@ jQuery(function($) {
 	
 	/**
 	 * Adds the specified polygon to this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Polygon} polygon The polygon to add
+	 * @fires polygonadded
+	 * @throws Argument must be an instance of WPGMZA.Polygon
 	 */
 	WPGMZA.Map.prototype.addPolygon = function(polygon)
 	{
@@ -2070,7 +2717,12 @@ jQuery(function($) {
 	
 	/**
 	 * Removes the specified polygon from this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Polygon} polygon The polygon to remove
+	 * @fires polygonremoved
+	 * @throws Argument must be an instance of WPGMZA.Polygon
+	 * @throws Wrong map error
 	 */
 	WPGMZA.Map.prototype.deletePolygon = function(polygon)
 	{
@@ -2086,6 +2738,13 @@ jQuery(function($) {
 		this.dispatchEvent({type: "polygonremoved", polygon: polygon});
 	}
 	
+	/**
+	 * Gets a polygon by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the polygon to get
+	 * @return {WPGMZA.Polygon|null} The polygon, or null if no polygon with the specified ID is found
+	 */
 	WPGMZA.Map.prototype.getPolygonByID = function(id)
 	{
 		for(var i = 0; i < this.polygons.length; i++)
@@ -2097,6 +2756,12 @@ jQuery(function($) {
 		return null;
 	}
 	
+	/**
+	 * Removes a polygon by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the polygon to remove
+	 */
 	WPGMZA.Map.prototype.deletePolygonByID = function(id)
 	{
 		var polygon = this.getPolygonByID(id);
@@ -2124,7 +2789,11 @@ jQuery(function($) {
 	
 	/**
 	 * Adds the specified polyline to this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Polyline} polyline The polyline to add
+	 * @fires polylineadded
+	 * @throws Argument must be an instance of WPGMZA.Polyline
 	 */
 	WPGMZA.Map.prototype.addPolyline = function(polyline)
 	{
@@ -2139,7 +2808,12 @@ jQuery(function($) {
 	
 	/**
 	 * Removes the specified polyline from this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Polyline} polyline The polyline to remove
+	 * @fires polylineremoved
+	 * @throws Argument must be an instance of WPGMZA.Polyline
+	 * @throws Wrong map error
 	 */
 	WPGMZA.Map.prototype.deletePolyline = function(polyline)
 	{
@@ -2155,6 +2829,13 @@ jQuery(function($) {
 		this.dispatchEvent({type: "polylineremoved", polyline: polyline});
 	}
 	
+	/**
+	 * Gets a polyline by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the polyline to get
+	 * @return {WPGMZA.Polyline|null} The polyline, or null if no polyline with the specified ID is found
+	 */
 	WPGMZA.Map.prototype.getPolylineByID = function(id)
 	{
 		for(var i = 0; i < this.polylines.length; i++)
@@ -2166,6 +2847,12 @@ jQuery(function($) {
 		return null;
 	}
 	
+	/**
+	 * Removes a polyline by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the polyline to remove
+	 */
 	WPGMZA.Map.prototype.deletePolylineByID = function(id)
 	{
 		var polyline = this.getPolylineByID(id);
@@ -2178,7 +2865,11 @@ jQuery(function($) {
 	
 	/**
 	 * Adds the specified circle to this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Circle} circle The circle to add
+	 * @fires polygonadded
+	 * @throws Argument must be an instance of WPGMZA.Circle
 	 */
 	WPGMZA.Map.prototype.addCircle = function(circle)
 	{
@@ -2193,7 +2884,12 @@ jQuery(function($) {
 	
 	/**
 	 * Removes the specified circle from this map
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {WPGMZA.Circle} circle The circle to remove
+	 * @fires circleremoved
+	 * @throws Argument must be an instance of WPGMZA.Circle
+	 * @throws Wrong map error
 	 */
 	WPGMZA.Map.prototype.removeCircle = function(circle)
 	{
@@ -2209,6 +2905,13 @@ jQuery(function($) {
 		this.dispatchEvent({type: "circleremoved", circle: circle});
 	}
 	
+	/**
+	 * Gets a circle by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the circle to get
+	 * @return {WPGMZA.Circle|null} The circle, or null if no circle with the specified ID is found
+	 */
 	WPGMZA.Map.prototype.getCircleByID = function(id)
 	{
 		for(var i = 0; i < this.circles.length; i++)
@@ -2220,6 +2923,12 @@ jQuery(function($) {
 		return null;
 	}
 	
+	/**
+	 * Removes a circle by ID
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {int} id The ID of the circle to remove
+	 */
 	WPGMZA.Map.prototype.deleteCircleByID = function(id)
 	{
 		var circle = this.getCircleByID(id);
@@ -2232,7 +2941,11 @@ jQuery(function($) {
 	
 	/**
 	 * Nudges the map viewport by the given pixel coordinates
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @param {number} x Number of pixels to nudge along the x axis
+	 * @param {number} y Number of pixels to nudge along the y axis
+	 * @throws Invalid coordinates supplied
 	 */
 	WPGMZA.Map.prototype.nudge = function(x, y)
 	{
@@ -2250,8 +2963,9 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Triggered when the window resizes
-	 * @return void
+	 * Called when the window resizes
+	 * @method
+	 * @memberof WPGMZA.Map
 	 */
 	WPGMZA.Map.prototype.onWindowResize = function(event)
 	{
@@ -2259,14 +2973,22 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Listener for when the engine map div is resized
-	 * @return void
+	 * Called when the engine map div is resized
+	 * @method
+	 * @memberof WPGMZA.Map
 	 */
 	WPGMZA.Map.prototype.onElementResized = function(event)
 	{
 		
 	}
 	
+	/**
+	 * Called when the map viewport bounds change. Fires the legacy bounds_changed event.
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @fires boundschanged
+	 * @fires bounds_changed
+	 */
 	WPGMZA.Map.prototype.onBoundsChanged = function(event)
 	{
 		// Native events
@@ -2276,6 +2998,12 @@ jQuery(function($) {
 		this.trigger("bounds_changed");
 	}
 	
+	/**
+	 * Called when the map viewport becomes idle (eg movement done, tiles loaded)
+	 * @method
+	 * @memberof WPGMZA.Map
+	 * @fires idle
+	 */
 	WPGMZA.Map.prototype.onIdle = function(event)
 	{
 		$(this.element).trigger("idle");
@@ -2310,6 +3038,13 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * The modal dialog presented to the user in the map edit page, prompting them to choose a map engine, if they haven't done so already
+	 * @class WPGMZA.MapEngineDialog
+	 * @constructor WPGMZA.MapEngineDialog
+	 * @memberof WPGMZA
+	 * @param {HTMLElement} element to create modal dialog from
+	 */
 	WPGMZA.MapsEngineDialog = function(element)
 	{
 		var self = this;
@@ -2335,6 +3070,12 @@ jQuery(function($) {
 		});
 	}
 	
+	/**
+	 * Triggered when an engine is selected. Makes an AJAX call to the server to save the selected engine.
+	 * @method
+	 * @memberof WPGMZA.MapEngineDialog
+	 * @param {object} event The click event from the selected button.
+	 */
 	WPGMZA.MapsEngineDialog.prototype.onButtonClicked = function(event)
 	{
 		$(event.target).prop("disabled", true);
@@ -2374,13 +3115,20 @@ jQuery(function($) {
  * @requires WPGMZA
  */
 jQuery(function($) {
+	
 	/**
-	 * Constructor
-	 * @param json to load (optional)
+	 * Base class for markers. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Marker
+	 * @constructor WPGMZA.Marker
+	 * @memberof WPGMZA
+	 * @param {object} [row] Data to map to this object (eg from the database)
+	 * @augments WPGMZA.MapObject
 	 */
 	WPGMZA.Marker = function(row)
 	{
 		var self = this;
+		
+		this._offset = {x: 0, y: 0};
 		
 		WPGMZA.assertInstanceOf(this, "Marker");
 		
@@ -2417,10 +3165,10 @@ jQuery(function($) {
 	WPGMZA.Marker.prototype.constructor = WPGMZA.Marker;
 	
 	/**
-	 * Gets the constructor. You can use this instead of hard coding the parent class when inheriting,
-	 * which is helpful for making subclasses that work with Basic only, Pro, Google, OL or a 
-	 * combination of the four.
-	 * @return function
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @return {function} The appropriate contructor
 	 */
 	WPGMZA.Marker.getConstructor = function()
 	{
@@ -2440,6 +3188,12 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Creates an instance of a marker, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {object} [row] Data to map to this object (eg from the database)
+	 */
 	WPGMZA.Marker.createInstance = function(row)
 	{
 		var constructor = WPGMZA.Marker.getConstructor();
@@ -2450,6 +3204,42 @@ jQuery(function($) {
 	WPGMZA.Marker.ANIMATION_BOUNCE			= "1";
 	WPGMZA.Marker.ANIMATION_DROP			= "2";
 	
+	Object.defineProperty(WPGMZA.Marker.prototype, "offsetX", {
+		
+		get: function()
+		{
+			return this._offset.x;
+		},
+		
+		set: function(value)
+		{
+			this._offset.x = value;
+			this.updateOffset();
+		}
+		
+	});
+	
+	Object.defineProperty(WPGMZA.Marker.prototype, "offsetY", {
+		
+		get: function()
+		{
+			return this._offset.y;
+		},
+		
+		set: function(value)
+		{
+			this._offset.y = value;
+			this.updateOffset();
+		}
+		
+	});
+	
+	/**
+	 * Called when the marker has been added to a map
+	 * @method
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 */
 	WPGMZA.Marker.prototype.onAdded = function(event)
 	{
 		var self = this;
@@ -2473,8 +3263,9 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * This function will hide the last info the user interacted with
-	 * @return void
+	 * This function will hide the last info the user interacted with, so that only one InfoWindow can be open at any given moment.
+	 * @method
+	 * @memberof WPGMZA.Marker
 	 */
 	WPGMZA.Marker.prototype.hidePreviousInteractedInfoWindow = function()
 	{
@@ -2484,6 +3275,11 @@ jQuery(function($) {
 		this.map.lastInteractedMarker.infoWindow.close();
 	}
 	
+	/**
+	 * Placeholder for future use
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 */
 	WPGMZA.Marker.prototype.openInfoWindow = function()
 	{
 		//this.hidePreviousInteractedInfoWindow();
@@ -2491,22 +3287,43 @@ jQuery(function($) {
 		//this.map.lastInteractedMarker = this;
 	}
 	
+	/**
+	 * Called when the marker has been clicked
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 */
 	WPGMZA.Marker.prototype.onClick = function(event)
 	{
 		
 	}
 	
+	/**
+	 * Called when the marker has been selected, either by the icon being clicked, or from a marker listing
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 */
 	WPGMZA.Marker.prototype.onSelect = function(event)
 	{
 		this.openInfoWindow();
 	}
 	
+	/**
+	 * Called when the user hovers the mouse over this marker
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 */
 	WPGMZA.Marker.prototype.onMouseOver = function(event)
 	{
 		if(this.map.settings.info_window_open_by == WPGMZA.InfoWindow.OPEN_BY_HOVER)
 			this.openInfoWindow();
 	}
 	
+	/**
+	 * Gets the marker icon image URL, without the protocol prefix
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @return {string} The URL to the markers icon image
+	 */
 	WPGMZA.Marker.prototype.getIcon = function()
 	{
 		function stripProtocol(url)
@@ -2522,7 +3339,9 @@ jQuery(function($) {
 	
 	/**
 	 * Gets the position of the marker
-	 * @return object
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @return {object} LatLng literal of this markers position
 	 */
 	WPGMZA.Marker.prototype.getPosition = function()
 	{
@@ -2533,8 +3352,10 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Sets the position of the marker
-	 * @return void
+	 * Sets the position of the marker.
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {object|WPGMZA.LatLng} latLng The position either as a LatLng literal or instance of WPGMZA.LatLng.
 	 */
 	WPGMZA.Marker.prototype.setPosition = function(latLng)
 	{
@@ -2550,9 +3371,23 @@ jQuery(function($) {
 		}
 	}
 	
+	WPGMZA.Marker.prototype.setOffset = function(x, y)
+	{
+		this._offset.x = x;
+		this._offset.y = y;
+		
+		this.updateOffset();
+	}
+	
+	WPGMZA.Marker.prototype.updateOffset = function()
+	{
+		
+	}
+	
 	/**
-	 * Set the marker animation
-	 * @return void
+	 * Returns the animation set on this marker (see WPGMZA.Marker ANIMATION_* constants).
+	 * @method
+	 * @memberof WPGMZA.Marker
 	 */
 	WPGMZA.Marker.prototype.getAnimation = function(animation)
 	{
@@ -2560,8 +3395,10 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Set the marker animation
-	 * @return void
+	 * Sets the animation for this marker (see WPGMZA.Marker ANIMATION_* constants).
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {int} animation The animation to set.
 	 */
 	WPGMZA.Marker.prototype.setAnimation = function(animation)
 	{
@@ -2570,16 +3407,19 @@ jQuery(function($) {
 	
 	/**
 	 * Get the marker visibility
-	 * @return void
+	 * @method
+	 * @memberof WPGMZA.Marker
 	 */
-	WPGMZA.Marker.prototype.getVisible = function(visible)
+	WPGMZA.Marker.prototype.getVisible = function()
 	{
 		
 	}
 	
 	/**
-	 * Set the marker visibility. This is used by the store locator etc. and is not a setting
-	 * @return void
+	 * Set the marker visibility. This is used by the store locator etc. and is not a setting. Closes the InfoWindow if the marker is being hidden and the InfoWindow for this marker is open.
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {bool} visible Whether the marker should be visible or not
 	 */
 	WPGMZA.Marker.prototype.setVisible = function(visible)
 	{
@@ -2587,6 +3427,12 @@ jQuery(function($) {
 			this.infoWindow.close();
 	}
 	
+	/**
+	 * Sets the map this marker should be displayed on. If it is already on a map, it will be removed from that map first, before being added to the supplied map.
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {WPGMZA.Map} map The map to add this markmer to
+	 */
 	WPGMZA.Marker.prototype.setMap = function(map)
 	{
 		if(!map)
@@ -2600,21 +3446,45 @@ jQuery(function($) {
 		map.addMarker(this);
 	}
 	
+	/**
+	 * Gets whether this marker is draggable or not
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @return {bool} True if the marker is draggable
+	 */
 	WPGMZA.Marker.prototype.getDraggable = function()
 	{
 		
 	}
 	
+	/**
+	 * Sets whether the marker is draggable
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {bool} draggable Set to true to make this marker draggable
+	 */
 	WPGMZA.Marker.prototype.setDraggable = function(draggable)
 	{
 		
 	}
 	
-	WPGMZA.Marker.prototype.setOptions = function()
+	/**
+	 * Sets options on this marker
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @param {object} options An object containing the options to be set
+	 */
+	WPGMZA.Marker.prototype.setOptions = function(options)
 	{
 		
 	}
 	
+	/**
+	 * Centers the map this marker belongs to on this marker
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @throws Marker hasn't been added to a map
+	 */
 	WPGMZA.Marker.prototype.panIntoView = function()
 	{
 		if(!this.map)
@@ -2624,8 +3494,10 @@ jQuery(function($) {
 	}
 	
 	/**
-	 * Returns the marker as a JSON object
-	 * @return object
+	 * Overrides MapObject.toJSON, serializes the marker to a JSON object
+	 * @method
+	 * @memberof WPGMZA.Marker
+	 * @return {object} A JSON representation of this marker
 	 */
 	WPGMZA.Marker.prototype.toJSON = function()
 	{
@@ -2659,8 +3531,11 @@ jQuery(function($) {
 jQuery(function($) {
 	
 	/**
-	 * This module is the modern store locator circle
-	 * @constructor
+	 * This is the base class the modern store locator circle. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.ModernStoreLocatorCircle
+	 * @constructor WPGMZA.ModernStoreLocatorCircle
+	 * @param {int} map_id The ID of the map this circle belongs to
+	 * @param {object} [settings] Settings to pass into this circle, such as strokeColor
 	 */
 	WPGMZA.ModernStoreLocatorCircle = function(map_id, settings) {
 		var self = this;
@@ -2715,6 +3590,12 @@ jQuery(function($) {
 			this.setOptions(settings);
 	};
 	
+	/**
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {function} The appropriate contructor
+	 */
 	WPGMZA.ModernStoreLocatorCircle.createInstance = function(map, settings) {
 		
 		if(WPGMZA.settings.engine == "google-maps")
@@ -2724,18 +3605,39 @@ jQuery(function($) {
 		
 	};
 	
+	/**
+	 * Abstract function to initialize the canvas layer
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.initCanvasLayer = function() {
 		
 	}
 	
+	/**
+	 * Handles the map viewport being resized
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.onResize = function(event) { 
 		this.draw();
 	};
 	
+	/**
+	 * Updates and redraws the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.onUpdate = function(event) { 
 		this.draw();
 	};
 	
+	/**
+	 * Sets options on the circle (for example, strokeColor)
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {object} options An object of options to iterate over and set on this circle.
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.setOptions = function(options) {
 		for(var name in options)
 		{
@@ -2748,30 +3650,72 @@ jQuery(function($) {
 		}
 	};
 	
+	/**
+	 * Gets the resolution scale for drawing on the circles canvas.
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {number} The device pixel ratio, or 1 where that is not present.
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getResolutionScale = function() {
 		return window.devicePixelRatio || 1;
 	};
 	
+	/**
+	 * Returns the center of the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {object} A latLng literal
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getCenter = function() {
 		return this.getPosition();
 	};
 	
+	/**
+	 * Sets the center of the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {WPGMZA.LatLng|object} A LatLng literal or instance of WPGMZA.LatLng
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.setCenter = function(value) {
 		this.setPosition(value);
 	};
 	
+	/**
+	 * Gets the center of the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {object} The center as a LatLng literal
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getPosition = function() {
 		return this.settings.center;
 	};
 	
+	/**
+	 * Alias for setCenter
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.setPosition = function(position) {
 		this.settings.center = position;
 	};
 	
+	/**
+	 * Gets the circle radius, in kilometers
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {number} The circles radius, in kilometers
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getRadius = function() {
 		return this.settings.radius;
 	};
 	
+	/**
+	 * Sets the circles radius, in kilometers
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {number} radius The radius, in kilometers
+	 * @throws Invalid radius
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.setRadius = function(radius) {
 		
 		if(isNaN(radius))
@@ -2780,39 +3724,77 @@ jQuery(function($) {
 		this.settings.radius = radius;
 	};
 	
-	WPGMZA.ModernStoreLocatorCircle.prototype.getVisible = function(visible) {
+	/**
+	 * Gets the visibility of the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @return {bool} Whether or not the circle is visible
+	 */
+	WPGMZA.ModernStoreLocatorCircle.prototype.getVisible = function() {
 		return this.settings.visible;
 	};
 	
+	/**
+	 * Sets the visibility of the circle
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {bool} visible Whether the circle should be visible
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.setVisible = function(visible) {
 		this.settings.visible = visible;
 	};
 	
 	/**
-	 * This function transforms a km radius into canvas space
-	 * @return number
+	 * Abstract function to get the transformed circle radius (see subclasses)
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {number} km The input radius, in kilometers
+	 * @throws Abstract function called
 	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getTransformedRadius = function(km)
 	{
 		throw new Error("Abstract function called");
 	}
 	
+	/**
+	 * Abstract function to set the canvas context
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @param {string} type The context type
+	 * @throws Abstract function called
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getContext = function(type)
 	{
 		throw new Error("Abstract function called");
 	}
 	
+	/**
+	 * Abstract function to get the canvas dimensions
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 * @throws Abstract function called
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.getCanvasDimensions = function()
 	{
 		throw new Error("Abstract function called");
 	}
 	
+	/**
+	 * Validates the circle settings and corrects them where they are invalid
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.validateSettings = function()
 	{
 		if(!WPGMZA.isHexColorString(this.settings.color))
 			this.settings.color = "#63AFF2";
 	}
 	
+	/**
+	 * Draws the circle to the canvas
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocatorCircle
+	 */
 	WPGMZA.ModernStoreLocatorCircle.prototype.draw = function() {
 		
 		this.validateSettings();
@@ -3028,10 +4010,11 @@ jQuery(function($) {
 jQuery(function($) {
 	
 	/**
-	 * The new modern look store locator. It takes the elements
-	 * from the default look and moves them into the map, wrapping
-	 * in a new element so we can apply new styles.
-	 * @return Object
+	 * The new modern look store locator. It takes the elements from the default look and moves them into the map, wrapping in a new element so we can apply new styles. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.ModernStoreLocator
+	 * @constructor WPGMZA.ModernStoreLocator
+	 * @memberof WPGMZA
+	 * @param {int} map_id The ID of the map this store locator belongs to
 	 */
 	WPGMZA.ModernStoreLocator = function(map_id)
 	{
@@ -3072,6 +4055,13 @@ jQuery(function($) {
 			addressInput.attr("placeholder", wpgmaps_localize[map_id].other_settings.store_locator_query_string);
 		
 		inner.append(addressInput);
+		
+		$(addressInput).on("keydown", function(event) {
+			
+			if(event.keyCode == 13)
+				self.searchButton.trigger("click");
+			
+		});
 		
 		inner.append($(original).find("select.wpgmza_sl_radius_select"));
 		// inner.append($(original).find(".wpgmza_filter_select_" + map_id));
@@ -3188,6 +4178,13 @@ jQuery(function($) {
 		});
 	}
 	
+	/**
+	 * Creates an instance of a modern store locator, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.ModernStoreLocator
+	 * @param {int} map_id The ID of the map this store locator belongs to
+	 * @return {WPGMZA.ModernStoreLocator} An instance of WPGMZA.ModernStoreLocator
+	 */
 	WPGMZA.ModernStoreLocator.createInstance = function(map_id)
 	{
 		if(WPGMZA.settings.engine == "google-maps")
@@ -3198,6 +4195,35 @@ jQuery(function($) {
 	
 });
 
+// js/v8/native-maps-icon.js
+/**
+ * @namespace WPGMZA
+ * @module NativeMapsAppIcon
+ * @requires WPGMZA
+ */
+jQuery(function($) {
+	
+	/**
+	 * Small utility class to create an icon for the native maps app, an Apple icon on iOS devices, a Google icon on other devices
+	 * @method WPGMZA.NativeMapsAppIcon
+	 * @constructor WPGMZA.NativeMapsAppIcon
+	 * @memberof WPGMZA
+	 */
+	WPGMZA.NativeMapsAppIcon = function() {
+		if(navigator.userAgent.match(/^Apple|iPhone|iPad|iPod/))
+		{
+			this.type = "apple";
+			this.element = $('<span><i class="fab fa-apple" aria-hidden="true"></i></span>');
+		}
+		else
+		{
+			this.type = "google";
+			this.element = $('<span><i class="fab fa-google" aria-hidden="true"></i></span>');
+		}
+	};
+	
+});
+
 // js/v8/polygon.js
 /**
  * @namespace WPGMZA
@@ -3205,6 +4231,16 @@ jQuery(function($) {
  * @requires WPGMZA.MapObject
  */
 jQuery(function($) {
+	
+	/**
+	 * Base class for polygons. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Polygon
+	 * @constructor WPGMZA.Polygon
+	 * @memberof WPGMZA
+	 * @param {object} [row] Options to apply to this polygon.
+	 * @param {object} [enginePolygon] An engine polygon, passed from the drawing manager. Used when a polygon has been created by a drawing manager.
+	 * @augments WPGMZA.MapObject
+	 */
 	WPGMZA.Polygon = function(row, enginePolygon)
 	{
 		var self = this;
@@ -3222,6 +4258,12 @@ jQuery(function($) {
 	WPGMZA.Polygon.prototype = Object.create(WPGMZA.MapObject.prototype);
 	WPGMZA.Polygon.prototype.constructor = WPGMZA.Polygon;
 	
+	/**
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.Polygon
+	 * @return {function} The appropriate contructor
+	 */
 	WPGMZA.Polygon.getConstructor = function()
 	{
 		switch(WPGMZA.settings.engine)
@@ -3240,12 +4282,26 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Creates an instance of a map, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.Polygon
+	 * @param {object} [row] Options to apply to this polygon.
+	 * @param {object} [enginePolygon] An engine polygon, passed from the drawing manager. Used when a polygon has been created by a drawing manager.
+	 * @returns {WPGMZA.Polygon} An instance of WPGMZA.Polygon
+	 */
 	WPGMZA.Polygon.createInstance = function(row, engineObject)
 	{
 		var constructor = WPGMZA.Polygon.getConstructor();
 		return new constructor(row, engineObject);
 	}
 	
+	/**
+	 * Returns a JSON representation of this polygon, for serialization
+	 * @method
+	 * @memberof WPGMZA.Polygon
+	 * @returns {object} A JSON object representing this polygon
+	 */
 	WPGMZA.Polygon.prototype.toJSON = function()
 	{
 		var result = WPGMZA.MapObject.prototype.toJSON.call(this);
@@ -3268,6 +4324,16 @@ jQuery(function($) {
  * @requires WPGMZA.MapObject
  */
 jQuery(function($) {
+	
+	/**
+	 * Base class for polylines. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.Polyline
+	 * @constructor WPGMZA.Polyline
+	 * @memberof WPGMZA
+	 * @param {object} [row] Options to apply to this polyline.
+	 * @param {object} [enginePolyline] An engine polyline, passed from the drawing manager. Used when a polyline has been created by a drawing manager.
+	 * @augments WPGMZA.MapObject
+	 */
 	WPGMZA.Polyline = function(row, googlePolyline)
 	{
 		var self = this;
@@ -3282,6 +4348,12 @@ jQuery(function($) {
 	WPGMZA.Polyline.prototype = Object.create(WPGMZA.MapObject.prototype);
 	WPGMZA.Polyline.prototype.constructor = WPGMZA.Polyline;
 	
+	/**
+	 * Returns the contructor to be used by createInstance, depending on the selected maps engine.
+	 * @method
+	 * @memberof WPGMZA.Polyline
+	 * @return {function} The appropriate contructor
+	 */
 	WPGMZA.Polyline.getConstructor = function()
 	{
 		switch(WPGMZA.settings.engine)
@@ -3296,17 +4368,35 @@ jQuery(function($) {
 		}
 	}
 	
+	/**
+	 * Creates an instance of a map, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.Polyline
+	 * @param {object} [row] Options to apply to this polyline.
+	 * @param {object} [enginePolyline] An engine polyline, passed from the drawing manager. Used when a polyline has been created by a drawing manager.
+	 * @returns {WPGMZA.Polyline} An instance of WPGMZA.Polyline
+	 */
 	WPGMZA.Polyline.createInstance = function(row, engineObject)
 	{
 		var constructor = WPGMZA.Polyline.getConstructor();
 		return new constructor(row, engineObject);
 	}
 	
+	/**
+	 * Gets the points on this polylines
+	 * @return {array} An array of LatLng literals
+	 */
 	WPGMZA.Polyline.prototype.getPoints = function()
 	{
 		return this.toJSON().points;
 	}
 	
+	/**
+	 * Returns a JSON representation of this polyline, for serialization
+	 * @method
+	 * @memberof WPGMZA.Polyline
+	 * @returns {object} A JSON object representing this polyline
+	 */
 	WPGMZA.Polyline.prototype.toJSON = function()
 	{
 		var result = WPGMZA.MapObject.prototype.toJSON.call(this);
@@ -3319,25 +4409,81 @@ jQuery(function($) {
 	
 });
 
-// js/v8/rest-api.js
+// js/v8/popout-panel.js
 /**
- * @module WPGMZA.RestAPI
  * @namespace WPGMZA
+ * @module PopoutPanel
  * @requires WPGMZA
- * @summary Wrapped for the rest API
  */
 jQuery(function($) {
 	
+	/**
+	 * Common functionality for popout panels, which is the directions box, directions result box, and the modern style marker listing
+	 * @class WPGMZA.PopoutPanel
+	 * @constructor WPGMZA.PopoutPanel
+	 * @memberof WPGMZA
+	 */
+	WPGMZA.PopoutPanel = function()
+	{
+		
+	};
+	
+	/**
+	 * Opens the direction box
+	 * @method
+	 * @memberof WPGMZA.PopoutPanel
+	 */
+	WPGMZA.PopoutPanel.prototype.open = function() {
+		$(this.element).addClass("wpgmza-open");
+	};
+	
+	/**
+	 * Closes the direction box
+	 * @method
+	 * @memberof WPGMZA.PopoutPanel
+	 */
+	WPGMZA.PopoutPanel.prototype.close = function() {
+		$(this.element).removeClass("wpgmza-open");
+	};
+	
+});
+
+// js/v8/rest-api.js
+/**
+ * @namespace WPGMZA
+ * @module WPGMZA.RestAPI
+ * @requires WPGMZA
+ */
+jQuery(function($) {
+	
+	/**
+	 * Used to interact with the WordPress REST API. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.RestAPI
+	 * @constructor WPGMZA.RestAPI
+	 * @memberof WPGMZA
+	 */
 	WPGMZA.RestAPI = function()
 	{
 		WPGMZA.RestAPI.URL = WPGMZA.resturl;
 	}
 	
+	/**
+	 * Creates an instance of a RestAPI, <strong>please <em>always</em> use this function rather than calling the constructor directly</strong>.
+	 * @method
+	 * @memberof WPGMZA.RestAPI
+	 */
 	WPGMZA.RestAPI.createInstance = function() 
 	{
 		return new WPGMZA.RestAPI();
 	}
 	
+	/**
+	 * Makes an AJAX to the REST API, this function is a wrapper for $.ajax
+	 * @method
+	 * @memberof WPGMZA.RestAPI
+	 * @param {string} route The REST API route
+	 * @param {object} params The request parameters, see http://api.jquery.com/jquery.ajax/
+	 */
 	WPGMZA.RestAPI.prototype.call = function(route, params)
 	{
 		if(typeof route != "string" || !route.match(/^\//))
@@ -3424,6 +4570,200 @@ jQuery(function($) {
 
 });
 
+// js/v8/3rd-party-integration/integration.js
+/**
+ * @namespace WPGMZA
+ * @module Integration
+ * @requires WPGMZA
+ */
+jQuery(function($) {
+	
+	WPGMZA.Integration = {};
+	WPGMZA.integrationModules = {};
+	
+});
+
+// js/v8/3rd-party-integration/gutenberg/dist/gutenberg.js
+"use strict";
+
+/**
+ * @namespace WPGMZA.Integration
+ * @module Gutenberg
+ * @requires WPGMZA.Integration
+ * @requires wp-i18n
+ * @requires wp-blocks
+ * @requires wp-editor
+ * @requires wp-components
+ */
+
+/**
+ * Internal block libraries
+ */
+jQuery(function ($) {
+
+	if (!window.wp || !wp.i18n || !wp.blocks || !wp.editor) return;
+
+	var __ = wp.i18n.__;
+	var registerBlockType = wp.blocks.registerBlockType;
+	var _wp$editor = wp.editor,
+	    InspectorControls = _wp$editor.InspectorControls,
+	    BlockControls = _wp$editor.BlockControls;
+	var _wp$components = wp.components,
+	    Dashicon = _wp$components.Dashicon,
+	    Toolbar = _wp$components.Toolbar,
+	    Button = _wp$components.Button,
+	    Tooltip = _wp$components.Tooltip,
+	    PanelBody = _wp$components.PanelBody,
+	    TextareaControl = _wp$components.TextareaControl,
+	    CheckboxControl = _wp$components.CheckboxControl,
+	    TextControl = _wp$components.TextControl,
+	    SelectControl = _wp$components.SelectControl,
+	    RichText = _wp$components.RichText;
+
+
+	WPGMZA.Integration.Gutenberg = function () {
+		registerBlockType('gutenberg-wpgmza/block', this.getBlockDefinition());
+	};
+
+	WPGMZA.Integration.Gutenberg.prototype.getBlockTitle = function () {
+		return __("WP Google Maps");
+	};
+
+	WPGMZA.Integration.Gutenberg.prototype.getBlockInspectorControls = function (props) {
+
+		/*
+  <TextControl
+  				name="overrideWidthAmount"
+  				label={__("Override Width Amount")}
+  				checked={props.overrideWidthAmount}
+  				onChange={onPropertiesChanged}
+  				/>
+  			
+  			<SelectControl
+  				name="overrideWidthUnits"
+  				label={__("Override Width Units")}
+  				options={[
+  					{value: "px", label: "px"},
+  					{value: "%", label: "%"},
+  					{value: "vw`", label: "vw"},
+  					{value: "vh", label: "vh"}
+  				]}
+  				onChange={onPropertiesChanged}
+  				/>
+  				
+  			<CheckboxControl
+  				name="overrideHeight"
+  				label={__("Override Height")}
+  				checked={props.overrideWidth}
+  				onChange={onPropertiesChanged}
+  				/>
+  				
+  			<TextControl
+  				name="overrideHeightAmount"
+  				label={__("Override Height Amount")}
+  				checked={props.overrideWidthAmount}
+  				onChange={onPropertiesChanged}
+  				/>
+  			
+  			<SelectControl
+  				name="overrideHeightUnits"
+  				label={__("Override Height Units")}
+  				options={[
+  					{value: "px", label: "px"},
+  					{value: "%", label: "%"},
+  					{value: "vw`", label: "vw"},
+  					{value: "vh", label: "vh"}
+  				]}
+  				onChange={onPropertiesChanged}
+  				/>
+  				*/
+
+		var onOverrideWidthCheckboxChanged = function onOverrideWidthCheckboxChanged(value) {};
+
+		return React.createElement(
+			InspectorControls,
+			{ key: "inspector" },
+			React.createElement(
+				PanelBody,
+				{ title: __('Map Settings') },
+				React.createElement(
+					"p",
+					{ "class": "map-block-gutenberg-button-container" },
+					React.createElement(
+						"a",
+						{ href: WPGMZA.adminurl + "admin.php?page=wp-google-maps-menu&action=edit&map_id=1",
+							target: "_blank",
+							"class": "button button-primary" },
+						React.createElement("i", { "class": "fa fa-pencil-square-o", "aria-hidden": "true" }),
+						__('Go to Map Editor')
+					)
+				),
+				React.createElement(
+					"p",
+					{ "class": "map-block-gutenberg-button-container" },
+					React.createElement(
+						"a",
+						{ href: "https://www.wpgmaps.com/documentation/creating-your-first-map/",
+							target: "_blank",
+							"class": "button button-primary" },
+						React.createElement("i", { "class": "fa fa-book", "aria-hidden": "true" }),
+						__('View Documentation')
+					)
+				)
+			)
+		);
+	};
+
+	WPGMZA.Integration.Gutenberg.prototype.getBlockAttributes = function () {
+		return {};
+	};
+
+	WPGMZA.Integration.Gutenberg.prototype.getBlockDefinition = function (props) {
+		var _this = this;
+
+		return {
+
+			title: __("WP Google Maps"),
+			description: __('The easiest to use Google Maps plugin! Create custom Google Maps with high quality markers containing locations, descriptions, images and links. Add your customized map to your WordPress posts and/or pages quickly and easily with the supplied shortcode. No fuss.'),
+			category: 'common',
+			icon: 'location-alt',
+			keywords: [__('Map'), __('Maps'), __('Google')],
+			attributes: this.getBlockAttributes(),
+
+			edit: function edit(props) {
+				return [!!props.isSelected && _this.getBlockInspectorControls(props), React.createElement(
+					"div",
+					{ className: props.className + " wpgmza-gutenberg-block" },
+					React.createElement(Dashicon, { icon: "location-alt" }),
+					React.createElement(
+						"span",
+						{ "class": "wpgmza-gutenberg-block-title" },
+						__("Your map will appear here on your websites front end")
+					)
+				)];
+			},
+			// Defining the front-end interface
+			save: function save(props) {
+				// Rendering in PHP
+				return null;
+			}
+
+		};
+	};
+
+	WPGMZA.Integration.Gutenberg.getConstructor = function () {
+		return WPGMZA.Integration.Gutenberg;
+	};
+
+	WPGMZA.Integration.Gutenberg.createInstance = function () {
+		var constructor = WPGMZA.Integration.Gutenberg.getConstructor();
+		return new constructor();
+	};
+
+	// Allow the Pro module to extend and create the module, only create here when Pro isn't loaded
+	if(!WPGMZA.isProVersion() && !(/^6/.test(WPGMZA.pro_version))) WPGMZA.integrationModules.gutenberg = WPGMZA.Integration.Gutenberg.createInstance();
+});
+
 // js/v8/compatibility/google-ui-compatibility.js
 /**
  * @namespace WPGMZA
@@ -3459,6 +4799,14 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Subclass, used when Google is the maps engine. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.GoogleCircle
+	 * @constructor WPGMZA.GoogleCircle
+	 * @memberof WPGMZA
+	 * @augments WPGMZA.Circle
+	 * @see WPGMZA.Circle.createInstance
+	 */
 	WPGMZA.GoogleCircle = function(options, googleCircle)
 	{
 		var self = this;
@@ -3513,6 +4861,14 @@ jQuery(function($) {
  */
 jQuery(function($) {
 	
+	/**
+	 * Subclass, used when Google is the maps engine. <strong>Please <em>do not</em> call this constructor directly. Always use createInstance rather than instantiating this class directly.</strong> Using createInstance allows this class to be externally extensible.
+	 * @class WPGMZA.GoogleGeocoder
+	 * @constructor WPGMZA.GoogleGeocoder
+	 * @memberof WPGMZA
+	 * @augments WPGMZA.Geocoder
+	 * @see WPGMZA.Geocoder.createInstance
+	 */
 	WPGMZA.GoogleGeocoder = function()
 	{
 		
@@ -4051,8 +5407,23 @@ jQuery(function($) {
 			southWest = {lat: southWest.lat, lng: southWest.lng};
 		if(northEast instanceof WPGMZA.LatLng)
 			northEast = {lat: northEast.lat, lng: northEast.lng};
+		else if(southWest instanceof WPGMZA.LatLngBounds)
+		{
+			var bounds = southWest;
+			
+			southWest = {
+				lat: bounds.south,
+				lng: bounds.west
+			};
+			
+			northEast = {
+				lat: bounds.north,
+				lng: bounds.east
+			};
+		}
 		
-		this.googleMap.fitBounds(southWest, northEast);
+		var nativeBounds = new google.maps.LatLngBounds(southWest, northEast);
+		this.googleMap.fitBounds(nativeBounds);
 	}
 	
 	/**
@@ -4353,12 +5724,17 @@ jQuery(function($) {
 	 * Sets the position offset of a marker
 	 * @return void
 	 */
-	WPGMZA.GoogleMarker.prototype.setOffset = function(x, y)
+	WPGMZA.GoogleMarker.prototype.updateOffset = function()
 	{
 		var self = this;
 		var icon = this.googleMarker.getIcon();
 		var img = new Image();
 		var params;
+		var x = this._offset.x;
+		var y = this._offset.y;
+		
+		if(!icon)
+			icon = WPGMZA.settings.default_marker_icon;
 		
 		if(typeof icon == "string")
 			params = {
@@ -4591,9 +5967,9 @@ jQuery(function($) {
 	
 	WPGMZA.GoogleModernStoreLocator = function(map_id)
 	{
-		WPGMZA.ModernStoreLocator.call(this, map_id);
+		var googleMap, self = this;
 		
-		var googleMap;
+		WPGMZA.ModernStoreLocator.call(this, map_id);
 		
 		if(WPGMZA.isProVersion())
 			googleMap = MYMAP[map_id].map.googleMap;
@@ -4601,6 +5977,28 @@ jQuery(function($) {
 			googleMap = MYMAP.map.googleMap;
 		
 		googleMap.controls[google.maps.ControlPosition.TOP_CENTER].push(this.element);
+		
+		// Address autocomplete
+		var options = {
+			fields: ["name", "formatted_address"],
+			types: ["geocode"]
+		};
+		var restrict = wpgmaps_localize[map_id]["other_settings"]["wpgmza_store_locator_restrict"];
+		
+		this.addressInput = $(this.element).find(".addressInput, #addressInput")[0];
+		
+		if(this.addressInput)
+		{
+			if(restrict && restrict.length)
+				options.componentRestrictions = {
+					country: restrict
+				};
+			
+			this.autoComplete = new google.maps.places.Autocomplete(
+				this.addressInput,
+				options
+			);
+		}
 	}
 	
 	WPGMZA.GoogleModernStoreLocator.prototype = Object.create(WPGMZA.ModernStoreLocator.prototype);
@@ -4891,6 +6289,11 @@ jQuery(function($) {
 			this.settings.fillColor = "#ff0000";
 			this.settings.fillOpacity = 0.6;
 		}
+		
+		if(options.fillColor)
+			this.settings.fillColor = options.fillColor;
+		if(options.fillOpacity)
+			this.settings.fillOpacity = options.fillOpacity;
 		
 		this.olStyle = new ol.style.Style(this.getStyleFromSettings());
 		
@@ -5385,8 +6788,13 @@ jQuery(function($) {
 	
 	WPGMZA.OLMap.prototype.getTileLayer = function()
 	{
+		var options = {};
+		
+		if(WPGMZA.settings.tile_server_url)
+			options.url = WPGMZA.settings.tile_server_url;
+		
 		return new ol.layer.Tile({
-			source: new ol.source.OSM()
+			source: new ol.source.OSM(options)
 		});
 	}
 	
@@ -5457,6 +6865,21 @@ jQuery(function($) {
 	 */
 	WPGMZA.OLMap.prototype.fitBounds = function(southWest, northEast)
 	{
+		if(southWest instanceof WPGMZA.LatLngBounds)
+		{
+			var bounds = southWest;
+			
+			southWest = {
+				lat: bounds.south,
+				lng: bounds.west,
+			};
+			
+			northEast = {
+				lat: southWest.north,
+				lng: southWest.east
+			};
+		}
+		
 		this.olMap.getView().fitExtent(
 			[southWest.lng, southWest.lat, northEast.lng, northEast.lat],
 			this.olMap.getSize()
@@ -5477,7 +6900,7 @@ jQuery(function($) {
 	
 	WPGMZA.OLMap.prototype.getZoom = function()
 	{
-		return Math.round( this.olMap.getView().getZoom() ) + 1;
+		return Math.round( this.olMap.getView().getZoom() );
 	}
 	
 	WPGMZA.OLMap.prototype.setZoom = function(value)
@@ -5690,7 +7113,7 @@ jQuery(function($) {
 			parseFloat(this.lat)
 		]);
 		
-		this.element = $("<div class='ol-marker'><img src='" + WPGMZA.settings.default_marker_icon + "'/></div>")[0];
+		this.element = $("<div class='ol-marker'><img src='" + WPGMZA.settings.default_marker_icon + "' alt=''/></div>")[0];
 		this.element.wpgmzaMarker = this;
 		
 		$(this.element).on("mouseover", function(event) {
@@ -5768,8 +7191,11 @@ jQuery(function($) {
 		this.overlay.setPosition(origin);
 	}
 	
-	WPGMZA.OLMarker.prototype.setOffset = function(x, y)
+	WPGMZA.OLMarker.prototype.updateOffset = function(x, y)
 	{
+		var x = this._offset.x;
+		var y = this._offset.y;
+		
 		this.element.style.position = "relative";
 		this.element.style.left = x + "px";
 		this.element.style.top = y + "px";

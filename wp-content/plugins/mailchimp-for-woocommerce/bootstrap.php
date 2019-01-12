@@ -87,7 +87,7 @@ function mailchimp_environment_variables() {
     return (object) array(
         'repo' => 'master',
         'environment' => 'production',
-        'version' => '2.1.10',
+        'version' => '2.1.11',
         'php_version' => phpversion(),
         'wp_version' => (empty($wp_version) ? 'Unknown' : $wp_version),
         'wc_version' => class_exists('WC') ? WC()->version : null,
@@ -99,7 +99,7 @@ function mailchimp_environment_variables() {
 if (defined( 'WP_CLI' ) && WP_CLI) {
     try {
         /**
-         * Service push to MailChimp
+         * Service push to Mailchimp
          *
          * <type>
          * : product_sync order_sync order product

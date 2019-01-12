@@ -2,8 +2,16 @@
 
 namespace WPGMZA;
 
+/**
+ * This class is a container for all localized strings used by the plugin.
+ * In the future, functionality will be added to build a dummy static string file from dynamic strings in the database, this will allow 3rd party software to scan dynamic strings for translation
+ */
 class Strings
 {
+	/**
+	 * Returns localized strings, passed through the wpgmza_localized_strings filter
+	 * @return array A key value pairs array of localized strings, where the array key is the variable name of the string on WPGMZA.localized_strings, the value is the localized string.
+	 */
 	public function getLocalizedStrings()
 	{
 		return apply_filters('wpgmza_localized_strings', array(
@@ -13,14 +21,16 @@ class Strings
 			
 			'documentation'				=> __('Documentation', 'wp-google-maps'),
 			'api_dashboard'				=> __('API Dashboard', 'wp-google-maps'),
-			'verify_project'			=> __('Verify Project', 'wp-google-maps')
+			'verify_project'			=> __('Verify Project', 'wp-google-maps'),
+			
+			'failed_to_get_address'		=> __('Failed to get address', 'wp-google-maps')
 		));
 	}
 	
 	/**
 	 * This function builds a dummy PHP file containing strings from the database,
 	 * making these strings scannable by translation software.
-	 * TODO: Implement
+	 * @todo Implement
 	 */
 	public function buildDynamicStringDummyFile()
 	{

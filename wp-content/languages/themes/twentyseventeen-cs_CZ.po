@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Themes - Twenty Seventeen package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-04-12 06:58:35+0000\n"
+"PO-Revision-Date: 2018-11-01 13:59:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,11 +23,11 @@ msgstr "Twenty Seventeen"
 msgid "Footer"
 msgstr "Zápatí"
 
-#: functions.php:326
+#: functions.php:329
 msgid "Add widgets here to appear in your sidebar on blog posts and archive pages."
 msgstr "Přidejte zde widgety, které se budou zobrazovat v postranním panelu příspěvků a stránek s archivy."
 
-#: functions.php:324 sidebar.php:18
+#: functions.php:327 sidebar.php:18
 msgid "Blog Sidebar"
 msgstr "Postranní panel blogu"
 
@@ -36,26 +36,26 @@ msgstr "Postranní panel blogu"
 msgid "Scroll down to content"
 msgstr "Posun dolů na obsah"
 
-#: functions.php:167
+#: functions.php:170
 msgctxt "Theme starter content"
 msgid "Coffee"
 msgstr "Káva"
 
-#: functions.php:163
+#: functions.php:166
 msgctxt "Theme starter content"
 msgid "Sandwich"
 msgstr "Sendvič"
 
-#: functions.php:159
+#: functions.php:162
 msgctxt "Theme starter content"
 msgid "Espresso"
 msgstr "Espresso"
 
-#: inc/custom-header.php:126
+#: inc/custom-header.php:128
 msgid "Pause background video"
 msgstr "Pauza videa na pozadí"
 
-#: inc/custom-header.php:125
+#: inc/custom-header.php:127
 msgid "Play background video"
 msgstr "Spuštění videa na pozadí"
 
@@ -63,7 +63,7 @@ msgstr "Spuštění videa na pozadí"
 msgid "Front Page Section %1$s Placeholder"
 msgstr "Zástupný obrázek sekce %1$s hlavní stránky"
 
-#: inc/customizer.php:99
+#: inc/customizer.php:109
 msgid "When the two-column layout is assigned, the page title is in one column and content is in the other."
 msgstr "Pokud je přiřazeno rozložení na dva sloupce, titulní strana je v jednom sloupci, a obsah je v druhé."
 
@@ -106,68 +106,68 @@ msgstr "Definujte název souboru SVG."
 msgid "Please define default parameters in the form of an array."
 msgstr "Definujte výchozí parametry ve formě pole."
 
-#: inc/customizer.php:131
+#: inc/customizer.php:143
 msgid "Select pages to feature in each area from the dropdowns. Add an image to a section by setting a featured image in the page editor. Empty sections will not be displayed."
 msgstr "V rozbalovacím seznamu vyberte stránky, které chcete zobrazit. Obrázek sekce předáte v nastavení hlavního obrázku stránky. Prázdné sekce se vůbec nezobrazí."
 
 #. translators: %d is the front page section number
-#: inc/customizer.php:130
+#: inc/customizer.php:142
 msgid "Front Page Section %d Content"
 msgstr "Obsah sekce %d hlavní stránky"
 
-#: inc/customizer.php:102 inc/customizer.php:158
+#: inc/customizer.php:112 inc/customizer.php:171
 msgid "Two Column"
 msgstr "Dva sloupce"
 
-#: inc/customizer.php:101 inc/customizer.php:157
+#: inc/customizer.php:111 inc/customizer.php:170
 msgid "One Column"
 msgstr "Jeden sloupec"
 
-#: inc/customizer.php:96
+#: inc/customizer.php:106
 msgid "Page Layout"
 msgstr "Rozložení stránky"
 
-#: inc/customizer.php:81
+#: inc/customizer.php:89
 msgid "Theme Options"
 msgstr "Nastavení šablony"
 
-#: inc/customizer.php:59
+#: inc/customizer.php:64
 msgid "Custom"
 msgstr "Vlastní"
 
-#: inc/customizer.php:57
+#: inc/customizer.php:62
 msgid "Light"
 msgstr "Světlé"
 
-#: inc/customizer.php:55
+#: inc/customizer.php:60
 msgid "Color Scheme"
 msgstr "Barevné schéma"
 
-#: inc/custom-header.php:54
+#: inc/custom-header.php:56
 msgid "Default Header Image"
 msgstr "Výchozí obrázek hlavičky"
 
-#: functions.php:348
+#: functions.php:351
 msgid "Footer 2"
 msgstr "Zápatí 2"
 
-#: functions.php:338 functions.php:350
+#: functions.php:341 functions.php:353
 msgid "Add widgets here to appear in your footer."
 msgstr "Widgety přidané tady se objeví v zápatí."
 
-#: functions.php:336
+#: functions.php:339
 msgid "Footer 1"
 msgstr "Zápatí 1"
 
 #. Translators: If there are characters in your language that are not supported
 #. by Libre Franklin, translate this to 'off'. Do not translate into your own
 #. language.
-#: functions.php:277
+#: functions.php:280
 msgctxt "Libre Franklin font: on or off"
 msgid "on"
 msgstr "on"
 
-#: functions.php:64 functions.php:191
+#: functions.php:64 functions.php:194
 #: template-parts/navigation/navigation-top.php:12
 msgid "Top Menu"
 msgstr "Hlavní menu"
@@ -224,7 +224,7 @@ msgid "Search Results for: %s"
 msgstr "Výsledky vyhledávání: %s"
 
 #. translators: %s: Name of current post
-#: functions.php:378 template-parts/page/content-front-page-panels.php:45
+#: functions.php:381 template-parts/page/content-front-page-panels.php:45
 #: template-parts/page/content-front-page.php:42
 #: template-parts/post/content-audio.php:84
 #: template-parts/post/content-gallery.php:71
@@ -233,11 +233,11 @@ msgstr "Výsledky vyhledávání: %s"
 msgid "Continue reading<span class=\"screen-reader-text\"> \"%s\"</span>"
 msgstr "Pokračovat ve čtení<span class=\"screen-reader-text\"> \"%s\"</span>"
 
-#: inc/customizer.php:58
+#: inc/customizer.php:63
 msgid "Dark"
 msgstr "Tmavé"
 
-#: inc/back-compat.php:39 inc/back-compat.php:52 inc/back-compat.php:68
+#: inc/back-compat.php:39 inc/back-compat.php:52 inc/back-compat.php:70
 msgid "Twenty Seventeen requires at least WordPress version 4.7. You are running version %s. Please upgrade and try again."
 msgstr "Twenty Seventeen vyžaduje minimálně WordPress verze 4.7. Aktuálně používáte verzi %s. Nejprve proveďte aktualizaci, a poté to prosím zkuste znovu."
 
@@ -262,15 +262,15 @@ msgstr "Menu"
 msgid "Skip to content"
 msgstr "Přejít k obsahu webu"
 
-#: functions.php:467
+#: functions.php:470
 msgid "Collapse child menu"
 msgstr "Skrýt podřazené položky"
 
-#: functions.php:466
+#: functions.php:469
 msgid "Expand child menu"
 msgstr "\tZobrazit podřazené položky"
 
-#: functions.php:65 functions.php:202
+#: functions.php:65 functions.php:205
 msgid "Social Links Menu"
 msgstr "Menu pro sociální sítě"
 

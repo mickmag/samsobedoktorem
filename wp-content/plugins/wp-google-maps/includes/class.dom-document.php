@@ -233,4 +233,12 @@ class DOMDocument extends \DOMDocument
 			
 		return $result;
 	}
+	
+	public function __get($name)
+	{
+		if($name == 'html')
+			return $this->saveInnerBody();
+		
+		return null;
+	}
 }

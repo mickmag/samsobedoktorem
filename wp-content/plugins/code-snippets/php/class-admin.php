@@ -18,7 +18,7 @@ class Code_Snippets_Admin {
 
 	public function load_classes() {
 		$this->menus['manage'] = new Code_Snippets_Manage_Menu();
-		$this->menus['edit']   = new Code_Snippets_Edit_Menu();
+		$this->menus['edit'] = new Code_Snippets_Edit_Menu();
 		$this->menus['import'] = new Code_Snippets_Import_Menu();
 
 		if ( is_network_admin() === code_snippets_unified_settings() ) {
@@ -34,14 +34,21 @@ class Code_Snippets_Admin {
 		add_action( 'init', array( $this, 'load_classes' ), 11 );
 
 		add_filter( 'mu_menu_items', array( $this, 'mu_menu_items' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_stylesheet' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( CODE_SNIPPETS_FILE ), array( $this, 'plugin_settings_link' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'plugin_meta_links' ), 10, 2 );
 		add_action( 'code_snippets/admin/manage', array( $this, 'survey_message' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_menu_icon' ) );
 
 		if ( isset( $_POST['save_snippet'] ) && $_POST['save_snippet'] ) {
 			add_action( 'code_snippets/allow_execute_snippet', array( $this, 'prevent_exec_on_save' ), 10, 3 );
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function is_compact_menu() {
+		return ! is_network_admin() && apply_filters( 'code_snippets_compact_menu', false );
 	}
 
 	/**
@@ -60,47 +67,19 @@ class Code_Snippets_Admin {
 	function mu_menu_items( $menu_items ) {
 		$menu_items['snippets'] = __( 'Snippets', 'code-snippets' );
 		$menu_items['snippets_settings'] = __( 'Snippets &raquo; Settings', 'code-snippets' );
+
 		return $menu_items;
 	}
 
 	/**
-	 * Enqueue the stylesheet for a snippet menu
-	 *
-	 * @since 2.2.0
-	 * @uses wp_enqueue_style() to add the stylesheet to the queue
-	 * @uses get_user_option() to check if MP6 mode is active
-	 * @uses plugins_url() to retrieve a URL to assets
-	 *
-	 * @param string $hook the current page hook
+	 * Load the stylesheet for the admin menu icon
 	 */
-	function enqueue_admin_stylesheet( $hook ) {
-		$pages = array( 'manage', 'add', 'edit', 'settings' );
-		$hooks = array_map( 'code_snippets_get_menu_hook', $pages );
+	function load_admin_menu_icon() {
 
-		/* First, load the menu icon stylesheet */
 		wp_enqueue_style(
 			'menu-icon-snippets',
-			plugins_url( 'css/min/menu-icon.css', CODE_SNIPPETS_FILE ),
-			false,
-			CODE_SNIPPETS_VERSION
-		);
-
-		/* Only load the stylesheet on the right snippets page */
-		if ( ! in_array( $hook, $hooks ) ) {
-			return;
-		}
-
-		$hooks = array_combine( $hooks, $pages );
-		$page  = $hooks[ $hook ];
-
-		// add snippet page uses edit stylesheet
-		'add' === $page && $page = 'edit';
-
-		wp_enqueue_style(
-			"code-snippets-$page",
-			plugins_url( "css/min/$page.css", CODE_SNIPPETS_FILE ),
-			false,
-			CODE_SNIPPETS_VERSION
+			plugins_url( 'css/min/menu-icon.css', code_snippets()->file ),
+			array(), code_snippets()->version
 		);
 	}
 
@@ -108,8 +87,8 @@ class Code_Snippets_Admin {
 	 * Prevent the snippet currently being saved from being executed
 	 * so it is not run twice (once normally, once
 	 *
-	 * @param bool   $exec       Whether the snippet will be executed
-	 * @param int    $exec_id    The ID of the snippet being executed
+	 * @param bool   $exec Whether the snippet will be executed
+	 * @param int    $exec_id The ID of the snippet being executed
 	 * @param string $table_name
 	 *
 	 * @return bool Whether the snippet will be executed
@@ -158,7 +137,7 @@ class Code_Snippets_Admin {
 	 *
 	 * @since 2.0
 	 *
-	 * @param  array $links The existing plugin info links
+	 * @param  array  $links The existing plugin info links
 	 * @param  string $file The plugin the links are for
 	 *
 	 * @return array         The modified plugin info links
@@ -176,17 +155,17 @@ class Code_Snippets_Admin {
 
 		return array_merge( $links, array(
 			sprintf( $format,
-				'http://wordpress.org/plugins/code-snippets/',
+				'https://wordpress.org/plugins/code-snippets/',
 				__( 'Visit the WordPress.org plugin page', 'code-snippets' ),
 				__( 'About', 'code-snippets' )
 			),
 			sprintf( $format,
-				'http://wordpress.org/support/plugin/code-snippets/',
+				'https://wordpress.org/support/plugin/code-snippets/',
 				__( 'Visit the support forums', 'code-snippets' ),
 				__( 'Support', 'code-snippets' )
 			),
 			sprintf( $format,
-				'http://bungeshea.com/donate/',
+				'https://sheabunge.com/donate/',
 				__( "Support this plugin's development", 'code-snippets' ),
 				__( 'Donate', 'code-snippets' )
 			),
@@ -215,9 +194,10 @@ class Code_Snippets_Admin {
 
 		?>
 
-		<br/>
+		<br />
 
-		<div class="updated"><p>
+		<div class="updated">
+			<p>
 
 				<?php _e( "<strong>Have feedback on Code Snippets?</strong> Please take the time to answer a short survey on how you use this plugin and what you'd like to see changed or added in the future.", 'code-snippets' ); ?>
 
@@ -228,7 +208,8 @@ class Code_Snippets_Admin {
 
 				<a href="<?php echo esc_url( wp_nonce_url( add_query_arg( $key, true ), $key ) ); ?>"><?php esc_html_e( 'Dismiss', 'code-snippets' ); ?></a>
 
-			</p></div>
+			</p>
+		</div>
 
 		<?php
 	}

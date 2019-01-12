@@ -18,7 +18,7 @@
         "pro": false,
         "dependencies": []
     },
-    "wpgmza-wpgmza-css": {
+    "wpgmza-css": {
         "src": "js\/v8\/css-escape.js",
         "pro": false,
         "dependencies": [
@@ -144,6 +144,13 @@
             "wpgmza"
         ]
     },
+    "wpgmza-native-maps-app-icon": {
+        "src": "js\/v8\/native-maps-icon.js",
+        "pro": false,
+        "dependencies": [
+            "wpgmza"
+        ]
+    },
     "wpgmza-polygon": {
         "src": "js\/v8\/polygon.js",
         "pro": false,
@@ -158,6 +165,13 @@
             "wpgmza-map-object"
         ]
     },
+    "wpgmza-popout-panel": {
+        "src": "js\/v8\/popout-panel.js",
+        "pro": false,
+        "dependencies": [
+            "wpgmza"
+        ]
+    },
     "wpgmza-wpgmza-rest-api": {
         "src": "js\/v8\/rest-api.js",
         "pro": false,
@@ -170,6 +184,24 @@
         "pro": false,
         "dependencies": [
             "wpgmza"
+        ]
+    },
+    "wpgmza-integration": {
+        "src": "js\/v8\/3rd-party-integration\/integration.js",
+        "pro": false,
+        "dependencies": [
+            "wpgmza"
+        ]
+    },
+    "wpgmza-gutenberg": {
+        "src": "js\/v8\/3rd-party-integration\/gutenberg\/dist\/gutenberg.js",
+        "pro": false,
+        "dependencies": [
+            "wpgmza-integration",
+            "wp-i18n",
+            "wp-blocks",
+            "wp-editor",
+            "wp-components"
         ]
     },
     "wpgmza-google-ui-compatibility": {

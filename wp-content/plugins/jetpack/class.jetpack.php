@@ -33,7 +33,9 @@ class Jetpack {
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
-	 * @var array The handles of styles that are concatenated into jetpack.css
+	 * @var array The handles of styles that are concatenated into jetpack.css.
+	 *
+	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
 		'jetpack-carousel',
@@ -44,6 +46,7 @@ class Jetpack {
 		'sharedaddy',
 		'jetpack-slideshow',
 		'presentations',
+		'quiz',
 		'jetpack-subscriptions',
 		'jetpack-responsive-videos-style',
 		'jetpack-social-menu',
@@ -55,11 +58,13 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'jetpack-authors-widget',
 		'wordads',
 		'eu-cookie-law-style',
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
+		'jetpack-widget-social-icons-styles',
 	);
 
 	/**
@@ -289,6 +294,7 @@ class Jetpack {
 		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
 		'twitter-cards/twitter-cards.php',           // Twitter Cards
 		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
+		'wp-to-twitter/wp-to-twitter.php',           // WP to Twitter
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 	);
 
@@ -417,7 +423,7 @@ class Jetpack {
 
 		Jetpack::maybe_set_version_option();
 
-		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
+		if ( method_exists( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' ) ) {
 			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
 
@@ -513,6 +519,8 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
+			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
 		/*
@@ -522,18 +530,34 @@ class Jetpack {
 		 * understanding of what is needed at the network level is
 		 * available
 		 */
-		if( is_multisite() ) {
+		if ( is_multisite() ) {
 			Jetpack_Network::init();
 		}
 
-		// Load Gutenberg editor blocks
-		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
+		/**
+		 * Prepare Gutenberg Editor functionality
+		 */
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		add_action( 'init', array( 'Jetpack_Gutenberg', 'load_blocks' ), 99 ); // Registers all the Jetpack blocks .
+		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		add_filter( 'jetpack_set_available_blocks', array( 'Jetpack_Gutenberg', 'jetpack_set_available_blocks' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from .com
 		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
+
+		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms
+		if ( isset( $_GET['jetpack'] ) && 'comms' == $_GET['jetpack'] && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
+			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
+				define( 'XMLRPC_REQUEST', true );
+			}
+
+			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
+
+			add_filter( 'xmlrpc_methods', array( $this, 'remove_non_jetpack_xmlrpc_methods' ), 1000 );
+		}
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
@@ -629,9 +653,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		// gutenberg locale
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -762,6 +783,74 @@ class Jetpack {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * Removes all XML-RPC methods that are not `jetpack.*`.
+	 * Only used in our alternate XML-RPC endpoint, where we want to
+	 * ensure that Core and other plugins' methods are not exposed.
+	 *
+	 * @param array $methods
+	 * @return array filtered $methods
+	 */
+	function remove_non_jetpack_xmlrpc_methods( $methods ) {
+		$jetpack_methods = array();
+
+		foreach ( $methods as $method => $callback ) {
+			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+				$jetpack_methods[ $method ] = $callback;
+			}
+		}
+
+		return $jetpack_methods;
+	}
+
+	/**
+	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
+	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
+	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
+	 * which is accessible via a different URI. Most of the below is copied directly
+	 * from /xmlrpc.php so that we're replicating it as closely as possible.
+	 */
+	function alternate_xmlrpc() {
+		// phpcs:disable PHPCompatibility.PHP.RemovedGlobalVariables.http_raw_post_dataDeprecatedRemoved
+		global $HTTP_RAW_POST_DATA;
+
+		// Some browser-embedded clients send cookies. We don't want them.
+		$_COOKIE = array();
+
+		// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
+		// but we can do it ourself.
+		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
+			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
+		}
+
+		// fix for mozBlog and other cases where '<?xml' isn't on the very first line
+		if ( isset( $HTTP_RAW_POST_DATA ) ) {
+			$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
+		}
+
+		// phpcs:enable
+
+		include_once( ABSPATH . 'wp-admin/includes/admin.php' );
+		include_once( ABSPATH . WPINC . '/class-IXR.php' );
+		include_once( ABSPATH . WPINC . '/class-wp-xmlrpc-server.php' );
+
+		/**
+		 * Filters the class used for handling XML-RPC requests.
+		 *
+		 * @since 3.1.0
+		 *
+		 * @param string $class The name of the XML-RPC server class.
+		 */
+		$wp_xmlrpc_server_class = apply_filters( 'wp_xmlrpc_server_class', 'wp_xmlrpc_server' );
+		$wp_xmlrpc_server = new $wp_xmlrpc_server_class;
+
+		// Fire off the request
+		nocache_headers();
+		$wp_xmlrpc_server->serve_request();
+
+		exit;
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
@@ -898,6 +987,12 @@ class Jetpack {
 				break;
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
+				break;
+			case 'jetpack_manage_autoupdates' :
+				$caps = array(
+					'manage_options',
+					'update_plugins',
+				);
 				break;
 			case 'jetpack_network_admin_page':
 			case 'jetpack_network_settings_page':
@@ -1514,6 +1609,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'premium';
 		}
 
@@ -1530,6 +1626,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'business';
 		}
 
@@ -2610,7 +2707,7 @@ class Jetpack {
 	 * @return string The locale as JSON
 	 */
 	public static function get_i18n_data_json() {
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_user_locale() . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );
@@ -2626,6 +2723,32 @@ class Jetpack {
 				'lang'   => is_admin() ? get_user_locale() : get_locale(),
 			),
 		) );
+	}
+
+	/**
+	 * Add locale data setup to wp-i18n
+	 *
+	 * Any Jetpack script that depends on wp-i18n should use this method to set up the locale.
+	 *
+	 * The locale setup depends on an adding inline script. This is error-prone and could easily
+	 * result in multiple additions of the same script when exactly 0 or 1 is desireable.
+	 *
+	 * This method provides a safe way to request the setup multiple times but add the script at
+	 * most once.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return void
+	 */
+	public static function setup_wp_i18n_locale_data() {
+		static $script_added = false;
+		if ( ! $script_added ) {
+			$script_added = true;
+			wp_add_inline_script(
+				'wp-i18n',
+				'wp.i18n.setLocaleData( ' . Jetpack::get_i18n_data_json() . ', \'jetpack\' );'
+			);
+		}
 	}
 
 	/**
@@ -3023,9 +3146,26 @@ class Jetpack {
 		add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
 	}
 
+	/**
+	 * Composes a module configure URL. It uses Jetpack settings search as default value
+	 * It is possible to redefine resulting URL by using "jetpack_module_configuration_url_$module" filter
+	 *
+	 * @param string $module Module slug
+	 * @return string $url module configuration URL
+	 */
 	public static function module_configuration_url( $module ) {
 		$module = Jetpack::get_module_slug( $module );
-		return Jetpack::admin_url( array( 'page' => 'jetpack', 'configure' => $module ) );
+		$default_url =  Jetpack::admin_url() . "#/settings?term=$module";
+		/**
+		 * Allows to modify configure_url of specific module to be able to redirect to some custom location.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param string $default_url Default url, which redirects to jetpack settings page.
+		 */
+		$url = apply_filters( 'jetpack_module_configuration_url_' . $module, $default_url );
+
+		return $url;
 	}
 
 	public static function module_configuration_load( $module, $method ) {
@@ -3170,10 +3310,14 @@ p {
 	 * @return null              [description]
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
+		} else {
+			// If a Jetpack is still active but not connected when updating verion, remind them to connect with the banner.
+			if ( ! Jetpack::is_active() ) {
+				Jetpack_Options::delete_option( 'dismissed_connection_banner' );
+			}
 		}
 	}
 
@@ -3858,13 +4002,6 @@ p {
 		return true;
 	}
 
-	function enqueue_gutenberg_locale() {
-		wp_add_inline_script(
-			'wp-i18n',
-			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
-		);
-	}
-
 	function jetpack_menu_order( $menu_order ) {
 		$jp_menu_order = array();
 
@@ -3911,7 +4048,7 @@ p {
 
 	function plugin_action_links( $actions ) {
 
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), __( 'Jetpack', 'jetpack' ) ) );
+		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), 'Jetpack' ) );
 
 		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
 			return array_merge(
@@ -4659,7 +4796,7 @@ p {
 					'site_icon'     => $site_icon,
 					'site_lang'     => get_locale(),
 					'_ui'           => $tracks_identity['_ui'],
-					'_ut'           => $tracks_identity['_ut']
+					'_ut'           => $tracks_identity['_ut'],
 				)
 			);
 
@@ -4672,6 +4809,12 @@ p {
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
+		// Ensure that class to get the affiliate code is loaded
+		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
+		}
+		// Get affiliate code and add it to the URL
+		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
@@ -4812,7 +4955,6 @@ p {
 			<h3>
 			<?php
 				$module = Jetpack::get_module( $module_id );
-				echo '<a href="' . Jetpack::admin_url( 'page=jetpack_modules' ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
@@ -4971,7 +5113,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
 			return false;
 		}
 
@@ -5441,7 +5583,7 @@ p {
 		}
 
 		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
@@ -5481,7 +5623,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return false;
 		}
 
@@ -5604,25 +5746,6 @@ p {
 			$this->rest_authentication_status = new WP_Error(
 				'rest_invalid_request',
 				__( 'This request method does not support body parameters.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
-		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['CONTENT_TYPE'];
-		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
-		}
-
-		if (
-			isset( $content_type ) &&
-			$content_type !== 'application/x-www-form-urlencoded' &&
-			$content_type !== 'application/json'
-		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This Content-Type is not supported.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 			return null;
@@ -6105,11 +6228,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
 					wp_die( $die_error );
 				}
 			} else {
@@ -6966,9 +7089,14 @@ p {
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
+			$widget_title = sprintf(
+				esc_html__( 'Stats by %s', 'jetpack' ),
+				Jetpack::get_jp_emblem( true )
+			);
+
 			wp_add_dashboard_widget(
 				'jetpack_summary_widget',
-				esc_html__( 'Site Stats', 'jetpack' ),
+				$widget_title,
 				array( __CLASS__, 'dashboard_widget' )
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
@@ -7063,10 +7191,27 @@ p {
 	 *
 	 * @since 3.9.0
 	 *
+	 * @param bool $logotype Should we use the full logotype (logo + text). Default to false.
+	 *
 	 * @return string
 	 */
-	public static function get_jp_emblem() {
-		return '<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 32 32"><path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/></svg>';
+	public static function get_jp_emblem( $logotype = false ) {
+		$logo = '<path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/>';
+		$text = '
+<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
+<path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z" />
+<path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z" />
+<path d="M93,22h-3v-1.5c-0.9,0.7-1.9,1.5-3.5,1.5c-1.5,0-3.1-1.1-3.1-3.2c0-2.9,2.5-3.4,4.2-3.7l2.4-0.3v-0.3c0-1.5-0.5-2.3-2-2.3 c-0.7,0-2.3,0.5-3.7,1.1L84,11c1.2-0.4,3-1,4.4-1c2.7,0,4.6,1.4,4.6,4.7L93,22z M90,16.4l-2.2,0.4c-0.7,0.1-1.4,0.5-1.4,1.6 c0,0.9,0.5,1.4,1.3,1.4s1.5-0.5,2.3-1V16.4z" />
+<path d="M104.5,21.3c-1.1,0.4-2.2,0.6-3.5,0.6c-4.2,0-5.9-2.4-5.9-5.9c0-3.7,2.3-6,6.1-6c1.4,0,2.3,0.2,3.2,0.5V13 c-0.8-0.3-2-0.6-3.2-0.6c-1.7,0-3.2,0.9-3.2,3.6c0,2.9,1.5,3.8,3.3,3.8c0.9,0,1.9-0.2,3.2-0.7V21.3z" />
+<path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z" />
+<path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z" />
+		';
+
+		return sprintf(
+			'<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 %1$s 32">%2$s</svg>',
+			( true === $logotype ? '118' : '32' ),
+			( true === $logotype ? $logo . $text : $logo )
+		);
 	}
 
 	/*
@@ -7126,27 +7271,39 @@ p {
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
-		if ( method_exists( 'Akismet' , 'http_post' ) ) {
-			$akismet_key = Akismet::get_api_key();
-			if ( ! $akismet_key ) {
-				return false;
-			}
-			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
+		static $status = null;
 
-			// We cache the result of the Akismet key verification for ten minutes.
-			if ( in_array( $cached_key_verification, array( 'valid', 'invalid' ) ) ) {
-				$akismet_key_state = $cached_key_verification;
-			} else {
-				$akismet_key_state = Akismet::verify_key( $akismet_key );
-				if ( 'failed' === $akismet_key_state ) {
-					return false;
-				}
-				set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
-			}
-
-			return ( 'valid' === $akismet_key_state );
+		if ( ! is_null( $status ) ) {
+			return $status;
 		}
-		return false;
+
+		// Check if a modern version of Akismet is active.
+		if ( ! method_exists( 'Akismet', 'http_post' ) ) {
+			$status = false;
+			return $status;
+		}
+
+		// Make sure there is a key known to Akismet at all before verifying key.
+		$akismet_key = Akismet::get_api_key();
+		if ( ! $akismet_key ) {
+			$status = false;
+			return $status;
+		}
+
+		// Possible values: valid, invalid, failure via Akismet. false if no status is cached.
+		$akismet_key_state = get_transient( 'jetpack_akismet_key_is_valid' );
+
+		// Do not used the cache result in wp-admin or REST API requests if the key isn't valid, in case someone is actively renewing, etc.
+		$recheck = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && 'valid' !== $akismet_key_state;
+		// We cache the result of the Akismet key verification for ten minutes.
+		if ( ! $akismet_key_state || $recheck ) {
+			$akismet_key_state = Akismet::verify_key( $akismet_key );
+			set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
+		}
+
+		$status = 'valid' === $akismet_key_state;
+
+		return $status;
 	}
 
 	/**
@@ -7157,7 +7314,7 @@ p {
 	 * @return bool
 	 */
 	public static function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.PHP.NewFunctionParameters.debug_backtrace_optionsFound
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}
@@ -7165,7 +7322,7 @@ p {
 
 		//Do check in constant O(1) time for PHP5.5+
 		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility
+			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility.PHP.NewFunctions.array_columnFound
 			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
 			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
 			return ! empty ( $intersection );
@@ -7270,109 +7427,6 @@ p {
 		if ( $send_state_messages ) {
 			Jetpack::state( 'message', 'authorized' );
 		}
-	}
-
-	/**
-	 * Check if Gutenberg editor is available
-	 *
-	 * @since 6.5.0
-	 *
-	 * @return bool
-	 */
-	public static function is_gutenberg_available() {
-		return function_exists( 'register_block_type' );
-	}
-
-	/**
-	 * Load Gutenberg editor blocks.
-	 *
-	 * This section meant for unstable phase of developing Jetpack's
-	 * Gutenberg extensions. If still around after Sep. 15, 2018 then
-	 * please file an issue to remove it; if nobody responds within one
-	 * week then please delete the code.
-	 *
-	 *
-	 * Loading blocks is disabled by default and enabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
-	 *
-	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
-	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
-	 *
-	 * Note that when loaded locally, you need to build the files yourself:
-	 * - _inc/blocks/jetpack-editor.js
-	 * - _inc/blocks/jetpack-editor.css
-	 *
-	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
-	 *
-	 * @since 6.5.0
-	 *
-	 * @return void
-	 */
-	public static function load_jetpack_gutenberg() {
-		/**
-		 * Filter to turn on loading Gutenberg blocks
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool false Whether to load Gutenberg blocks
-		 */
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
-			return;
-		}
-
-		/**
-		 * Filter to turn off serving blocks via CDN
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool true Whether to load Gutenberg blocks from CDN
-		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
-			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
-			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
-
-			/**
-			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
-			 *
-			 * @since 6.5.0
-			 *
-			 * @param string
-			 */
-			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
-		} else {
-			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style = plugins_url( '_inc/blocks/jetpack-editor.css', JETPACK__PLUGIN_FILE );
-			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
-		}
-
-		wp_register_script(
-			'jetpack-blocks-editor',
-			$editor_script,
-			array(
-				'wp-blocks',
-				'wp-components',
-				'wp-compose',
-				'wp-data',
-				'wp-editor',
-				'wp-element',
-				'wp-i18n',
-				'wp-plugins',
-			),
-			$version
-		);
-
-		wp_register_style(
-			'jetpack-blocks-editor',
-			$editor_style,
-			array(),
-			$version
-		);
-
-		register_block_type( 'jetpack/blocks', array(
-				'editor_script' => 'jetpack-blocks-editor',
-				'editor_style'  => 'jetpack-blocks-editor',
-		) );
 	}
 
 	/**

@@ -159,7 +159,8 @@ function get_snippet( $id = 0, $multisite = null ) {
 function activate_snippet( $id, $multisite = null ) {
 	/** @var wpdb $wpdb */
 	global $wpdb;
-	$table = code_snippets()->db->get_table_name( $multisite );
+	$db = code_snippets()->db;
+	$table = $db->get_table_name( $multisite );
 
 	$wpdb->update(
 		$table,
@@ -170,7 +171,7 @@ function activate_snippet( $id, $multisite = null ) {
 	);
 
 	/* Remove snippet from shared network snippet list if it was Network Activated */
-	if ( $table == $wpdb->ms_snippets && $shared_network_snippets = get_site_option( 'shared_network_snippets', false ) ) {
+	if ( $table === $db && $shared_network_snippets = get_site_option( 'shared_network_snippets', false ) ) {
 		$shared_network_snippets = array_diff( $shared_network_snippets, array( $id ) );
 		update_site_option( 'shared_network_snippets', $shared_network_snippets );
 	}
@@ -191,7 +192,8 @@ function activate_snippet( $id, $multisite = null ) {
 function deactivate_snippet( $id, $multisite = null ) {
 	/** @var wpdb $wpdb */
 	global $wpdb;
-	$table = code_snippets()->db->get_table_name( $multisite );
+	$db = code_snippets()->db;
+	$table = $db->get_table_name( $multisite );
 
 	/* Set the snippet to active */
 
@@ -207,17 +209,18 @@ function deactivate_snippet( $id, $multisite = null ) {
 
 	$recently_active = array( $id => time() );
 
-	if ( $table === $wpdb->ms_snippets ) {
-
-		update_site_option(
-			'recently_activated_snippets',
-			$recently_active + (array) get_site_option( 'recently_activated_snippets' )
-		);
-	} elseif ( $table === $wpdb->snippets ) {
+	if ( $table === $db->table ) {
 
 		update_option(
 			'recently_activated_snippets',
-			$recently_active + (array) get_option( 'recently_activated_snippets' )
+			$recently_active + (array) get_option( 'recently_activated_snippets', array() )
+		);
+
+	} elseif ( $table === $db->ms_table ) {
+
+		update_site_option(
+			'recently_activated_snippets',
+			$recently_active + (array) get_site_option( 'recently_activated_snippets', array() )
 		);
 	}
 
@@ -370,12 +373,14 @@ function execute_snippet( $code, $id = 0, $catch_output = true ) {
  */
 function execute_active_snippets() {
 
-	if ( ! apply_filters( 'code_snippets/execute_snippets', true ) ) {
+	/* Bail early if safe mode is active */
+	if ( defined( 'CODE_SNIPPETS_SAFE_MODE' ) && CODE_SNIPPETS_SAFE_MODE || ! apply_filters( 'code_snippets/execute_snippets', true ) ) {
 		return false;
 	}
 
 	/** @var wpdb $wpdb */
 	global $wpdb;
+	$db = code_snippets()->db;
 
 	$current_scope = is_admin() ? 'admin' : 'front-end';
 	$queries = array();
@@ -384,12 +389,12 @@ function execute_active_snippets() {
 	$order = 'ORDER BY priority ASC, id ASC';
 
 	/* Fetch snippets from site table */
-	if ( $wpdb->get_var( "SHOW TABLES LIKE '$wpdb->snippets'" ) === $wpdb->snippets ) {
-		$queries[ $wpdb->snippets ] = $wpdb->prepare( sprintf( $sql_format, $wpdb->snippets ) . 'AND active=1 ' . $order, $current_scope );
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '$db->table'" ) === $db->table ) {
+		$queries[ $db->table ] = $wpdb->prepare( sprintf( $sql_format, $db->table ) . 'AND active=1 ' . $order, $current_scope );
 	}
 
 	/* Fetch snippets from the network table */
-	if ( is_multisite() && $wpdb->get_var( "SHOW TABLES LIKE '$wpdb->ms_snippets'" ) === $wpdb->ms_snippets ) {
+	if ( is_multisite() && $wpdb->get_var( "SHOW TABLES LIKE '$db->ms_table'" ) === $db->ms_table ) {
 		$active_shared_ids = get_option( 'active_shared_network_snippets', array() );
 
 		/* If there are active shared snippets, include them in the query */
@@ -399,15 +404,15 @@ function execute_active_snippets() {
 			$active_shared_ids_format = implode( ',', array_fill( 0, count( $active_shared_ids ), '%d' ) );
 
 			/* Include them in the query */
-			$sql = sprintf( $sql_format, $wpdb->ms_snippets ) . " AND (active=1 OR id IN ($active_shared_ids_format)) $order";
+			$sql = sprintf( $sql_format, $db->ms_table ) . " AND (active=1 OR id IN ($active_shared_ids_format)) $order";
 
 			/* Add the scope number to the IDs array, so that it is the first variable in the query */
 			array_unshift( $active_shared_ids, $current_scope );
-			$queries[ $wpdb->ms_snippets ] = $wpdb->prepare( $sql, $active_shared_ids );
+			$queries[ $db->ms_table ] = $wpdb->prepare( $sql, $active_shared_ids );
 
 		} else {
-			$sql = sprintf( $sql_format, $wpdb->ms_snippets ) . 'AND active=1 ' . $order;
-			$queries[ $wpdb->ms_snippets ] = $wpdb->prepare( $sql, $current_scope );
+			$sql = sprintf( $sql_format, $db->ms_table ) . 'AND active=1 ' . $order;
+			$queries[ $db->ms_table ] = $wpdb->prepare( $sql, $current_scope );
 		}
 	}
 
